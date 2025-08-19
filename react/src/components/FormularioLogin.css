@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100vh;
   background-color: #f8f9fa;
-  position: relative;
+ 
 }
 
 .login-form-container {
@@ -15,12 +15,4 @@
   box-shadow: 0 0 15px rgba(0,0,0,0.1);
 }
 
-.alert-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1050; /* Para que esté sobre el login */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+

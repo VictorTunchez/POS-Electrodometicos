@@ -1,10 +1,9 @@
-// src/components/ChangePassword.jsx
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import authService from "../services/authService";
-import AlertMessage from "./AlertMessage";
+import servicioAutenticacion from "../services/servicioAutenticacion";
+import MensajeAlerta from "./MensajeAlerta";
 
-function ChangePassword() {
+function FormularioCambiarContrasena() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token"); // obtenemos el token de la URL
 
@@ -13,7 +12,7 @@ function ChangePassword() {
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
 
-  const handleSubmit = async (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     setError("");
     setMensaje("");
@@ -24,13 +23,13 @@ function ChangePassword() {
     }
 
     try {
-      await authService.changePassword({ token, nuevaContrasena });
-      setMensaje("Contraseña cambiada exitosamente!");
+      await servicioAutenticacion.cambiarContrasena({ token, nuevaContrasena });
+      setMensaje("¡Contraseña cambiada exitosamente!");
       setTimeout(() => {
-          window.location.href = "/"; // redirige al login
-        }, 2000);
+        window.location.href = "/"; // redirige al login
+      }, 2000);
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.mensaje) {
+      if (err.response?.data?.mensaje) {
         setError(err.response.data.mensaje);
       } else {
         setError("Error de conexión con el servidor");
@@ -40,13 +39,13 @@ function ChangePassword() {
 
   return (
     <div className="full-page">
-         <div className="alert-container">
-                {mensaje && <AlertMessage tipo="success" mensaje={mensaje} />}
-                {error && <AlertMessage tipo="danger" mensaje={error} />}
-          </div>
+      {/* Alertas independientes */}
+      {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
+      {error && <MensajeAlerta tipo="error" mensaje={error} />}
+
       <div className="login-form-container">
         <h2 className="text-center mb-4">Cambiar Contraseña</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={manejarEnvio}>
           <div className="mb-3">
             <input
               type="password"
@@ -76,4 +75,4 @@ function ChangePassword() {
   );
 }
 
-export default ChangePassword;
+export default FormularioCambiarContrasena;

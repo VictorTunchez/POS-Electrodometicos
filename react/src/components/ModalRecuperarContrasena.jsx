@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import authService from "../services/authService";
-import AlertMessage from "./AlertMessage";
+import servicioAutenticacion from "../services/servicioAutenticacion";
+import MensajeAlerta from "./MensajeAlerta";
 
-function ForgotPasswordModal() {
-  const [email, setEmail] = useState("");
+function ModalRecuperarContrasena() {
+  const [correo, setCorreo] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     setMensaje("");
     setError("");
 
     try {
-      const response = await authService.forgotPassword(email);
-      setMensaje(response.mensaje || "Se ha enviado un correo de resuperacion");
+      const respuesta = await servicioAutenticacion.solicitarRecuperacionContrasena(correo);
+      setMensaje(respuesta.mensaje || "Se ha enviado un correo de recuperación.");
     } catch (err) {
       if (err.response?.data?.mensaje) {
         setError(err.response.data.mensaje);
@@ -31,10 +31,10 @@ function ForgotPasswordModal() {
       tabIndex="-1"
       aria-hidden="true"
     >
-    <div className="alert-container">
-            {mensaje && <AlertMessage tipo="success" mensaje={mensaje} />}
-            {error && <AlertMessage tipo="danger" mensaje={error} />}
-     </div>
+      {/* Alertas flotantes dentro del modal */}
+        {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
+        {error && <MensajeAlerta tipo="error" mensaje={error} />}
+
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
@@ -47,13 +47,13 @@ function ForgotPasswordModal() {
             ></button>
           </div>
           <div className="modal-body">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={manejarEnvio}>
               <input
                 type="email"
                 className="form-control mb-3"
                 placeholder="Ingresa tu correo"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
                 required
               />
               <button type="submit" className="btn btn-primary w-100">
@@ -67,4 +67,5 @@ function ForgotPasswordModal() {
   );
 }
 
-export default ForgotPasswordModal;
+export default ModalRecuperarContrasena;
+

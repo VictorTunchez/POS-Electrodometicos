@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import './App.css'
-import LoginPage from "./pages/LoginPage";
+import FormularioLogin from "./components/FormularioLogin";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ChangePassword from "./components/ChangePassword";
+import ChangePassword from "./components/FormularioCambiarContrasena";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -10,7 +10,7 @@ function App() {
   return (
        <BrowserRouter>
             <Routes>
-              <Route path="/" element={<LoginPage />} />
+              <Route path="/" element={<FormularioLogin />} />
               <Route path="/cambiar-contrasena" element={<ChangePassword />} />
             </Routes>
           </BrowserRouter>

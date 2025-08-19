@@ -1,25 +1,25 @@
-// src/components/LoginForm.jsx
+// src/components/FormularioLogin.jsx
 import React, { useState } from "react";
-import authService from "../services/authService";
-import "./LoginForm.css";
-import ForgotPasswordModal from "./ForgotPasswordModal";
-import AlertMessage from "./AlertMessage";
+import servicioAutenticacion from "../services/servicioAutenticacion";
+import "./FormularioLogin.css";
+import ModalRecuperarContrasena from "./ModalRecuperarContrasena";
+import MensajeAlerta from "./MensajeAlerta";
 
-function LoginForm() {
+function FormularioLogin() {
   const [login, setLogin] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
 
-  const handleSubmit = async (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     setError("");
     setMensaje("");
 
     try {
-      // authService ya guarda el token en localStorage
-      await authService.login({ login, contrasena });
-      setMensaje("Login exitoso!");
+      // El servicio de autenticación ya guarda el token en localStorage
+      await servicioAutenticacion.iniciarSesion({ login, contrasena });
+      setMensaje("¡Inicio de sesión exitoso!");
     } catch (err) {
       if (err.response?.data?.mensaje) {
         setError(err.response.data.mensaje);
@@ -32,15 +32,14 @@ function LoginForm() {
   return (
     <div className="full-page">
       {/* Alertas flotantes arriba a la derecha */}
-      <div className="alert-container">
-        {mensaje && <AlertMessage tipo="success" mensaje={mensaje} />}
-        {error && <AlertMessage tipo="danger" mensaje={error} />}
-      </div>
+
+        {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
+        {error && <MensajeAlerta tipo="error" mensaje={error} />}
 
       {/* Formulario centrado */}
       <div className="login-form-container">
         <h2 className="text-center mb-4">Iniciar Sesión</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={manejarEnvio}>
           <div className="mb-3">
             <input
               type="email"
@@ -77,10 +76,10 @@ function LoginForm() {
           </span>
         </p>
 
-        <ForgotPasswordModal />
+        <ModalRecuperarContrasena />
       </div>
     </div>
   );
 }
 
-export default LoginForm;
+export default FormularioLogin;
