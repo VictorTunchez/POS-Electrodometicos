@@ -1,6 +1,7 @@
 package pos.api.infra.exceptions;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,7 +17,7 @@ import java.util.List;
 @RestControllerAdvice
 public class GestorDeErrores {
 
-    // Unificado para cualquier error de login
+    // Unificado para cualquier error de email
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> manejarErroresDeLogin() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -24,10 +25,17 @@ public class GestorDeErrores {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> gestionarErrorAccesoDenegado() {
+    public ResponseEntity<ErrorResponse> gestionarErrorAccesoDenegado(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("AUTH_001", "No autorizado: token faltante", List.of()));
+        }
+
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("AUTH_003", "Acceso denegado", List.of()));
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> manejarErroresValidacion(MethodArgumentNotValidException ex) {

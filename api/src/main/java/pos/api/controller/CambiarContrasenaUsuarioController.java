@@ -4,14 +4,14 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.usuario.reset.OlvidoContrasenaDto;
-import pos.api.domain.usuario.reset.CambiarContrasenaService;
-import pos.api.domain.usuario.reset.CambiarContrasenaDto;
+import pos.api.user.reset.OlvidoContrasenaDto;
+import pos.api.user.reset.CambiarContrasenaService;
+import pos.api.user.reset.CambiarContrasenaDto;
 
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class CambiarContrasenaUsuarioController {
     @Autowired
     private CambiarContrasenaService cambiarContrasenaService;
@@ -21,7 +21,7 @@ public class CambiarContrasenaUsuarioController {
     @Transactional
     public ResponseEntity<?> olvidoContrasena(@RequestBody OlvidoContrasenaDto request) {
         try {
-            cambiarContrasenaService.procesarSolicitudRecuperacion(request.login());
+            cambiarContrasenaService.procesarSolicitudRecuperacion(request.email());
             return ResponseEntity.ok("Se ha enviado un enlace de recuperación a su correo");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

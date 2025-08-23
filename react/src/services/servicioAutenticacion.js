@@ -20,7 +20,7 @@ const iniciarSesion = async (credenciales) => {
 
 const solicitarRecuperacionContrasena = async (usuario) => {
   try {
-    const respuesta = await axios.post(`${URL_API}/auth/olvido-contrasena`, { login: usuario });
+    const respuesta = await axios.post(`${URL_API}/auth/olvido-contrasena`, { email: usuario });
     return respuesta.data;
   } catch (error) {
     throw error;
@@ -37,8 +37,29 @@ const cambiarContrasena = async ({ token, nuevaContrasena }) => {
   }
 };
 
+
+const obtenerSaludo = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) throw new Error("No hay token disponible");
+
+    const respuesta = await axios.get(`${URL_API}/api/panel/bienvenida`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return respuesta.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export default {
   iniciarSesion,
   solicitarRecuperacionContrasena,
   cambiarContrasena,
+  obtenerSaludo,
 };

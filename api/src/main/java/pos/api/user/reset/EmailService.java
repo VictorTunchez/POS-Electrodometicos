@@ -1,4 +1,4 @@
-package pos.api.domain.usuario.reset;
+package pos.api.user.reset;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

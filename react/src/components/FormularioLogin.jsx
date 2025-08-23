@@ -1,13 +1,17 @@
-// src/components/FormularioLogin.jsx
 import React, { useState } from "react";
 import servicioAutenticacion from "../services/servicioAutenticacion";
 import "./FormularioLogin.css";
 import ModalRecuperarContrasena from "./ModalRecuperarContrasena";
 import MensajeAlerta from "./MensajeAlerta";
+import { validarEmail, validarContrasena } from "../utils/validaciones";
+import { useNavigate } from "react-router-dom";
 
 function FormularioLogin() {
-  const [login, setLogin] = useState("");
+    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [errorEmail, setErrorEmail] = useState(null);
+  const [errorContrasena, setErrorContrasena] = useState(null);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
 
@@ -16,10 +20,21 @@ function FormularioLogin() {
     setError("");
     setMensaje("");
 
+    // Validaciones antes de enviar
+    const emailError = validarEmail(email);
+    const contrasenaError = validarContrasena(contrasena);
+
+    setErrorEmail(emailError);
+    setErrorContrasena(contrasenaError);
+
+    if (emailError || contrasenaError) return; // si hay errores, no enviamos
+
     try {
-      // El servicio de autenticación ya guarda el token en localStorage
-      await servicioAutenticacion.iniciarSesion({ login, contrasena });
+      await servicioAutenticacion.iniciarSesion({ email, contrasena });
       setMensaje("¡Inicio de sesión exitoso!");
+      setTimeout(() => {
+            navigate("/panel");
+          }, 1000);
     } catch (err) {
       if (err.response?.data?.mensaje) {
         setError(err.response.data.mensaje);
@@ -31,34 +46,33 @@ function FormularioLogin() {
 
   return (
     <div className="full-page">
-      {/* Alertas flotantes arriba a la derecha */}
+      {/* Alertas flotantes SOLO para mensajes globales */}
+      {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
+      {error && <MensajeAlerta tipo="error" mensaje={error} />}
 
-        {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
-        {error && <MensajeAlerta tipo="error" mensaje={error} />}
-
-      {/* Formulario centrado */}
+      {/* Formulario */}
       <div className="login-form-container">
         <h2 className="text-center mb-4">Iniciar Sesión</h2>
         <form onSubmit={manejarEnvio}>
           <div className="mb-3">
             <input
               type="email"
-              className="form-control"
+              className={`form-control ${errorEmail ? "is-invalid" : ""}`}
               placeholder="Correo"
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
-              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value.replace(/\s+/g, '').toLowerCase())}
             />
+            {errorEmail && <div className="invalid-feedback">{errorEmail}</div>}
           </div>
           <div className="mb-3">
             <input
               type="password"
-              className="form-control"
+              className={`form-control ${errorContrasena ? "is-invalid" : ""}`}
               placeholder="Contraseña"
               value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              required
+              onChange={(e) => setContrasena(e.target.value.replace(/\s+/g, ''))}
             />
+            {errorContrasena && <div className="invalid-feedback">{errorContrasena}</div>}
           </div>
           <button type="submit" className="btn btn-primary w-100">
             Ingresar
@@ -75,7 +89,6 @@ function FormularioLogin() {
             ¿Olvidaste tu contraseña?
           </span>
         </p>
-
         <ModalRecuperarContrasena />
       </div>
     </div>
@@ -83,3 +96,4 @@ function FormularioLogin() {
 }
 
 export default FormularioLogin;
+

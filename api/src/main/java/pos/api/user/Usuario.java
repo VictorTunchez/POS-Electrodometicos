@@ -1,4 +1,4 @@
-package pos.api.domain.usuario;
+package pos.api.user;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +20,7 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String login;
+    private String email;
     private String contrasena;
     private String resetContrasenaToken;
 
@@ -37,7 +37,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return email;
     }
 
     @Override

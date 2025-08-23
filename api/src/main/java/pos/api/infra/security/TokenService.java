@@ -4,8 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import pos.api.domain.usuario.Usuario;
-import org.springframework.beans.factory.annotation.Value;
+import pos.api.user.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,7 +22,7 @@ public class TokenService {
             var algoritmo = Algorithm.HMAC256(secret);
             return  JWT.create()
                     .withIssuer("API pos.login")
-                    .withSubject(usuario.getLogin())
+                    .withSubject(usuario.getEmail())
                     .withExpiresAt(fechaExpiracion())
                     .sign(algoritmo);
         } catch (JWTCreationException exception){

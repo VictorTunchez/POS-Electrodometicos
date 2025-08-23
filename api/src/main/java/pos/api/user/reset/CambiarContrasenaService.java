@@ -1,11 +1,11 @@
-package pos.api.domain.usuario.reset;
+package pos.api.user.reset;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import pos.api.domain.usuario.IUsuarioRepository;
-import pos.api.domain.usuario.Usuario;
+import pos.api.user.IUsuarioRepository;
+import pos.api.user.Usuario;
 
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
@@ -21,8 +21,8 @@ public class CambiarContrasenaService {
     private final String frontendURL = "http://localhost:5173/cambiar-contrasena";
 
     // Genera temporal token y envía correo
-    public void procesarSolicitudRecuperacion(String login) throws MessagingException, UnsupportedEncodingException {
-        Usuario usuario = repository.findByLogin(login);
+    public void procesarSolicitudRecuperacion(String email) throws MessagingException, UnsupportedEncodingException {
+        Usuario usuario = repository.findByEmail(email.toLowerCase());
         if (usuario == null) throw new RuntimeException("Usuario no encontrado");
 
         String token = UUID.randomUUID().toString().replace("-", "").substring(0, 30);
@@ -30,7 +30,7 @@ public class CambiarContrasenaService {
         repository.save(usuario);
 
         String link = frontendURL + "?token=" + token;
-        emailService.sendResetPasswordEmail(login, link);
+        emailService.sendResetPasswordEmail(email, link);
     }
 
     //  Validar token

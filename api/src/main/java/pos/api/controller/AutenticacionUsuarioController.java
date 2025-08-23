@@ -1,8 +1,8 @@
 package pos.api.controller;
 
 import jakarta.validation.Valid;
-import pos.api.domain.usuario.autenticacion.AutenticacionDto;
-import pos.api.domain.usuario.Usuario;
+import pos.api.user.login.AutenticacionDto;
+import pos.api.user.Usuario;
 import pos.api.infra.security.TokeJwtDto;
 import pos.api.infra.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class AutenticacionUsuarioController {
     @Autowired
     private TokenService tokenService;
@@ -27,7 +27,7 @@ public class AutenticacionUsuarioController {
 
     @PostMapping
     public ResponseEntity iniciarSeseion(@RequestBody @Valid AutenticacionDto datos){
-        var autenticationToken = new UsernamePasswordAuthenticationToken(datos.login(), datos.contrasena());
+        var autenticationToken = new UsernamePasswordAuthenticationToken(datos.email(), datos.contrasena());
         var autenticacion = manager.authenticate(autenticationToken);
 
         var tokenJwt = tokenService.generarToken((Usuario) autenticacion.getPrincipal());

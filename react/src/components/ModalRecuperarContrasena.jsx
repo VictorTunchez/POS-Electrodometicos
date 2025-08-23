@@ -1,19 +1,25 @@
 import React, { useState } from "react";
 import servicioAutenticacion from "../services/servicioAutenticacion";
 import MensajeAlerta from "./MensajeAlerta";
+import { validarEmail } from "../utils/validaciones";
 
 function ModalRecuperarContrasena() {
-  const [correo, setCorreo] = useState("");
+  const [email, setEmail] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [errorEmail, setErrorEmail] = useState(null);
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
     setMensaje("");
     setError("");
 
+    const emailError = validarEmail(email);
+    setErrorEmail(emailError);
+    if (emailError) return;
+
     try {
-      const respuesta = await servicioAutenticacion.solicitarRecuperacionContrasena(correo);
+      const respuesta = await servicioAutenticacion.solicitarRecuperacionContrasena(email);
       setMensaje(respuesta.mensaje || "Se ha enviado un correo de recuperación.");
     } catch (err) {
       if (err.response?.data?.mensaje) {
@@ -31,7 +37,7 @@ function ModalRecuperarContrasena() {
       tabIndex="-1"
       aria-hidden="true"
     >
-      {/* Alertas flotantes dentro del modal */}
+      {/* Alertas */}
         {mensaje && <MensajeAlerta tipo="exito" mensaje={mensaje} />}
         {error && <MensajeAlerta tipo="error" mensaje={error} />}
 
@@ -50,14 +56,14 @@ function ModalRecuperarContrasena() {
             <form onSubmit={manejarEnvio}>
               <input
                 type="email"
-                className="form-control mb-3"
-                placeholder="Ingresa tu correo"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                required
+                className={`form-control mb-2 ${errorEmail ? "is-invalid" : ""}`}
+                placeholder="Ingresa tu correo electronico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value.replace(/\s+/g, '').toLowerCase())}
               />
+              {errorEmail && <div className="invalid-feedback">{errorEmail}</div>}
               <button type="submit" className="btn btn-primary w-100">
-                Enviar enlace
+                Enviar
               </button>
             </form>
           </div>
