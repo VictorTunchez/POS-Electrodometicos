@@ -4,10 +4,15 @@ import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pos.api.infra.exceptions.validations.ContrasenaRepetidaException;
 import pos.api.user.IUsuarioRepository;
 import pos.api.user.Usuario;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,8 +49,33 @@ public class CambiarContrasenaService {
         if (usuario == null) throw new RuntimeException("Token inválido o expirado");
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        usuario.setContrasena(encoder.encode(nuevaContrasena));
+
+        // Recuperar historial de hashes
+        List<String> hashes = usuario.getHistorialContrasenas() != null
+                ? new ArrayList<>(Arrays.asList(usuario.getHistorialContrasenas().split(",")))
+                : new ArrayList<>();
+
+        // Validar que la nueva contraseña no coincida con ninguna anterior
+        for (String hash : hashes) {
+            if (encoder.matches(nuevaContrasena, hash)) {
+                throw new ContrasenaRepetidaException("La nueva contraseña no puede ser igual a una anterior");
+            }
+        }
+
+        // Guardar la nueva contraseña y actualizar historial
+        String nuevoHash = encoder.encode(nuevaContrasena);
+        usuario.setContrasena(nuevoHash);
         usuario.setResetContrasenaToken(null);
+        usuario.setLastPasswordChange(Instant.now());
+
+        // Agregar al inicio del historial
+        hashes.add(0, nuevoHash);
+
+        // Mantener solo los últimos 5
+        if (hashes.size() > 5) hashes = hashes.subList(0, 5);
+
+        usuario.setHistorialContrasenas(String.join(",", hashes));
         repository.save(usuario);
     }
+
 }

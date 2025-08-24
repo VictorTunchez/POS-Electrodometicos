@@ -13,31 +13,24 @@ import pos.api.user.reset.CambiarContrasenaDto;
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
 public class CambiarContrasenaUsuarioController {
+
     @Autowired
     private CambiarContrasenaService cambiarContrasenaService;
 
     // Endpoint para solicitar recuperación de contraseña
     @PostMapping("/olvido-contrasena")
     @Transactional
-    public ResponseEntity<?> olvidoContrasena(@RequestBody OlvidoContrasenaDto request) {
-        try {
-            cambiarContrasenaService.procesarSolicitudRecuperacion(request.email());
-            return ResponseEntity.ok("Se ha enviado un enlace de recuperación a su correo");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> olvidoContrasena(@RequestBody OlvidoContrasenaDto request) throws Exception {
+        cambiarContrasenaService.procesarSolicitudRecuperacion(request.email());
+        return ResponseEntity.ok("Se ha enviado un enlace de recuperación a su correo");
     }
 
     // Endpoint para cambiar contraseña con el token
     @PostMapping("/cambiar-contrasena")
     @Transactional
-    public ResponseEntity<?> cambiarContrasena(@RequestBody CambiarContrasenaDto request) {
-        try {
-            cambiarContrasenaService.cambiarContrasena(request.token(), request.nuevaContrasena());
-            return ResponseEntity.ok("La contraseña se ha cambiado correctamente");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> cambiarContrasena(@RequestBody CambiarContrasenaDto request) {
+        cambiarContrasenaService.cambiarContrasena(request.token(), request.nuevaContrasena());
+        return ResponseEntity.ok("La contraseña se ha cambiado correctamente");
     }
-
 }
+

@@ -1,10 +1,15 @@
 package pos.api.infra.exceptions;
-
-import java.util.List;
+import java.util.Map;
 
 public record ErrorResponse(
-        String codigo,
         String mensaje,
-        List<DatosErrorValidacion> errores
+        Map<String, String> detalles
 ) {
+    public static ErrorResponse simple(String mensaje) {
+        return new ErrorResponse(mensaje, Map.of());
+    }
+
+    public static ErrorResponse conDetalles(String mensaje, Map<String, String> detalles) {
+        return new ErrorResponse(mensaje, detalles);
+    }
 }
