@@ -10,7 +10,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pos.api.infra.exceptions.validations.ContrasenaRepetidaException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,18 +43,11 @@ public class GestorDeErrores {
                 .body(ErrorResponse.conDetalles("Error de validación en uno o más campos", errores));
     }
 
+    // 🔹 Manejo genérico de todas las demás excepciones
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarErroresGenerales(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(ErrorResponse.simple("Ocurrió un error interno: " + ex.getMessage()));
-    }
-
-    @ExceptionHandler(ContrasenaRepetidaException.class)
-    public ResponseEntity<ErrorResponse> manejarContrasenaRepetida(ContrasenaRepetidaException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse.simple(ex.getMessage()));
     }
 }
-

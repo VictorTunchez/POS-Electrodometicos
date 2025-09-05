@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import servicioAutenticacion from "../services/servicioAutenticacion";
-import MensajeAlerta from "./MensajeAlerta";
-import { validarContrasena } from "../utils/validaciones";
+import servicioAutenticacion from "../../services/servicioAutenticacion";
+import MensajeAlerta from "../MensajeAlerta";
+import { validarContrasena } from "../../utils/validaciones";
+import { handleApiError } from "../../utils/errorHandler"; // Importar el utilitario
 
 function FormularioCambiarContrasena() {
   const [searchParams] = useSearchParams();
@@ -38,11 +39,7 @@ function FormularioCambiarContrasena() {
         window.location.href = "/"; // redirige al login
       }, 2000);
     } catch (err) {
-      if (err.response?.data?.mensaje) {
-        setError(err.response.data.mensaje);
-      } else {
-        setError("Error de conexión con el servidor");
-      }
+      setError(handleApiError(err, "Error al cambiar la contraseña"));
     }
   };
 

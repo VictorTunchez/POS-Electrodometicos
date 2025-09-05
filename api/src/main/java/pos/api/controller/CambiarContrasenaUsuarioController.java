@@ -1,12 +1,16 @@
 package pos.api.controller;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pos.api.user.reset.OlvidoContrasenaDto;
-import pos.api.user.reset.CambiarContrasenaService;
-import pos.api.user.reset.CambiarContrasenaDto;
+import pos.api.domain.user.reset.OlvidoContrasenaDto;
+import pos.api.domain.user.reset.CambiarContrasenaService;
+import pos.api.domain.user.reset.CambiarContrasenaDto;
+
+import java.io.UnsupportedEncodingException;
 
 
 @RestController
@@ -17,20 +21,18 @@ public class CambiarContrasenaUsuarioController {
     @Autowired
     private CambiarContrasenaService cambiarContrasenaService;
 
-    // Endpoint para solicitar recuperación de contraseña
     @PostMapping("/olvido-contrasena")
-    @Transactional
-    public ResponseEntity<String> olvidoContrasena(@RequestBody OlvidoContrasenaDto request) throws Exception {
+    public ResponseEntity<String> olvidoContrasena(@RequestBody @Valid OlvidoContrasenaDto request) throws MessagingException, UnsupportedEncodingException {
+        // No importa si falla, siempre enviamos el mismo mensaje
         cambiarContrasenaService.procesarSolicitudRecuperacion(request.email());
-        return ResponseEntity.ok("Se ha enviado un enlace de recuperación a su correo");
+        return ResponseEntity.ok("Se ha enviado un enlace de cambio de contraseña");
     }
 
-    // Endpoint para cambiar contraseña con el token
     @PostMapping("/cambiar-contrasena")
-    @Transactional
-    public ResponseEntity<String> cambiarContrasena(@RequestBody CambiarContrasenaDto request) {
-        cambiarContrasenaService.cambiarContrasena(request.token(), request.nuevaContrasena());
-        return ResponseEntity.ok("La contraseña se ha cambiado correctamente");
+    public ResponseEntity<String> cambiarContrasena(@RequestBody @Valid CambiarContrasenaDto request) {
+            cambiarContrasenaService.cambiarContrasena(request.token(), request.nuevaContrasena());
+            return ResponseEntity.ok("Contraseña cambiada exitosamente");
     }
 }
+
 

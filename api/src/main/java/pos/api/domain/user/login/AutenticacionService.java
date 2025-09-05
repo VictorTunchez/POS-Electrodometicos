@@ -1,4 +1,4 @@
-package pos.api.user.login;
+package pos.api.domain.user.login;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pos.api.user.IUsuarioRepository;
-import pos.api.user.Usuario;
+import pos.api.domain.user.IUsuarioRepository;
+import pos.api.domain.user.Usuario;
 import java.time.Instant;
 
 @Service
@@ -22,12 +22,11 @@ public class AutenticacionService implements UserDetailsService {
 
     public Usuario login(String email, String contrasena) {
         Usuario usuario = repository.findByEmail(email.toLowerCase());
-        if (usuario == null) {
-            throw new BadCredentialsException("Credenciales inválidas");
-        }
 
-        // Valida la contraseña
-        if (!passwordEncoder.matches(contrasena, usuario.getContrasena())) {
+        // Validaciones combinadas
+        if (usuario == null ||
+                usuario.getDeletedAt() != null ||
+                !passwordEncoder.matches(contrasena, usuario.getContrasena())) {
             throw new BadCredentialsException("Credenciales inválidas");
         }
 

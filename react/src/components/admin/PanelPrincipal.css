@@ -1,0 +1,196 @@
+/* PanelPrincipal.css */
+:root {
+  --primary: #0d6efd;
+  --primary-dark: #0b5ed7;
+  --primary-light: #cfe2ff;
+  --secondary: #6c757d;
+  --success: #198754;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --transition: all 0.3s ease;
+}
+
+.panel-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Header Styles */
+.panel-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.panel-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.panel-subtitle {
+  font-size: 1.2rem;
+  color: var(--secondary);
+  margin-bottom: 0;
+}
+
+/* Modules Section */
+.modules-section {
+  margin-bottom: 2rem;
+}
+
+.modules-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.module-card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+  cursor: pointer;
+  background: white;
+}
+
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+.module-card .card-body {
+  padding: 2rem 1.5rem;
+}
+
+.module-icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: var(--primary-light);
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.module-card:hover .module-icon {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.module-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 1rem;
+}
+
+.module-card .card-text {
+  color: var(--secondary);
+  line-height: 1.6;
+}
+
+/* Error State */
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 1rem;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  border-left: 4px solid #dc3545;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1.5rem;
+}
+
+.error-text h3 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.error-text p {
+  color: var(--secondary);
+}
+
+/* Footer */
+.panel-footer {
+  margin-top: auto;
+  padding: 1.5rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .panel-container {
+    padding: 1.5rem;
+  }
+
+  .panel-title {
+    font-size: 2rem;
+  }
+
+  .panel-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .modules-title {
+    font-size: 1.5rem;
+  }
+
+  .module-card .card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .module-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .panel-container {
+    padding: 1rem;
+  }
+
+  .panel-header {
+    padding: 1.5rem 0;
+  }
+
+  .panel-title {
+    font-size: 1.75rem;
+  }
+
+  .modules-grid {
+    margin: 0 -0.5rem;
+  }
+}
+

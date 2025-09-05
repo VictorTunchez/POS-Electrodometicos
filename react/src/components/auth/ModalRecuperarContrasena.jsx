@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import servicioAutenticacion from "../services/servicioAutenticacion";
-import MensajeAlerta from "./MensajeAlerta";
-import { validarEmail } from "../utils/validaciones";
+import servicioAutenticacion from "../../services/servicioAutenticacion";
+import MensajeAlerta from "../MensajeAlerta";
+import { validarEmail } from "../../utils/validaciones";
+import { handleApiError } from "../../utils/errorHandler"; // Importar el utilitario
 
 function ModalRecuperarContrasena() {
   const [email, setEmail] = useState("");
@@ -22,11 +23,7 @@ function ModalRecuperarContrasena() {
       const respuesta = await servicioAutenticacion.solicitarRecuperacionContrasena(email);
       setMensaje(respuesta.mensaje || "Se ha enviado un correo de recuperación.");
     } catch (err) {
-      if (err.response?.data?.mensaje) {
-        setError(err.response.data.mensaje);
-      } else {
-        setError("Error de conexión con el servidor");
-      }
+      setError(handleApiError(err, "Error al solicitar recuperación de contraseña"));
     }
   };
 
@@ -74,4 +71,3 @@ function ModalRecuperarContrasena() {
 }
 
 export default ModalRecuperarContrasena;
-

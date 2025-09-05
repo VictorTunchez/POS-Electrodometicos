@@ -1,12 +1,12 @@
-package pos.api.user.reset;
+package pos.api.domain.user.reset;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pos.api.infra.exceptions.validations.ContrasenaRepetidaException;
-import pos.api.user.IUsuarioRepository;
-import pos.api.user.Usuario;
+import pos.api.domain.user.IUsuarioRepository;
+import pos.api.domain.user.Usuario;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
@@ -23,12 +23,19 @@ public class CambiarContrasenaService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     private final String frontendURL = "http://localhost:5173/cambiar-contrasena";
 
     // Genera temporal token y envía correo
     public void procesarSolicitudRecuperacion(String email) throws MessagingException, UnsupportedEncodingException {
         Usuario usuario = repository.findByEmail(email.toLowerCase());
-        if (usuario == null) throw new RuntimeException("Usuario no encontrado");
+
+        // VALIDACIÓN AGREGADA: Rechazar usuarios eliminados
+        if (usuario == null || usuario.getDeletedAt() != null) {
+            // Por seguridad, mismo mensaje aunque el usuario esté eliminado
+            throw new RuntimeException("Si el email existe, recibirá un enlace de recuperación");
+        }
 
         String token = UUID.randomUUID().toString().replace("-", "").substring(0, 30);
         usuario.setResetContrasenaToken(token);
@@ -38,17 +45,26 @@ public class CambiarContrasenaService {
         emailService.sendResetPasswordEmail(email, link);
     }
 
-    //  Validar token
+    // Validar token
     public Usuario validarToken(String token) {
-        return repository.findByResetContrasenaToken(token);
+        Usuario usuario = repository.findByResetContrasenaToken(token);
+
+        // VALIDACIÓN AGREGADA: Rechazar tokens de usuarios eliminados
+        if (usuario != null && usuario.getDeletedAt() != null) {
+            return null; // Token inválido porque usuario fue eliminado
+        }
+
+        return usuario;
     }
 
     // Cambiar contraseña
     public void cambiarContrasena(String token, String nuevaContrasena) {
         Usuario usuario = validarToken(token);
-        if (usuario == null) throw new RuntimeException("Token inválido o expirado");
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        // DOBLE VALIDACIÓN: Por si acaso
+        if (usuario == null || usuario.getDeletedAt() != null) {
+            throw new RuntimeException("Token inválido o expirado");
+        }
 
         // Recuperar historial de hashes
         List<String> hashes = usuario.getHistorialContrasenas() != null
@@ -57,13 +73,13 @@ public class CambiarContrasenaService {
 
         // Validar que la nueva contraseña no coincida con ninguna anterior
         for (String hash : hashes) {
-            if (encoder.matches(nuevaContrasena, hash)) {
-                throw new ContrasenaRepetidaException("La nueva contraseña no puede ser igual a una anterior");
+            if (passwordEncoder.matches(nuevaContrasena, hash)) {
+                throw new IllegalArgumentException("La nueva contraseña no puede ser igual a una anterior");
             }
         }
 
         // Guardar la nueva contraseña y actualizar historial
-        String nuevoHash = encoder.encode(nuevaContrasena);
+        String nuevoHash = passwordEncoder.encode(nuevaContrasena);
         usuario.setContrasena(nuevoHash);
         usuario.setResetContrasenaToken(null);
         usuario.setLastPasswordChange(Instant.now());
@@ -72,10 +88,12 @@ public class CambiarContrasenaService {
         hashes.add(0, nuevoHash);
 
         // Mantener solo los últimos 5
-        if (hashes.size() > 5) hashes = hashes.subList(0, 5);
+        if (hashes.size() > 5) {
+            hashes = hashes.subList(0, 5);
+        }
 
         usuario.setHistorialContrasenas(String.join(",", hashes));
         repository.save(usuario);
     }
-
 }
+

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import servicioAutenticacion from "../services/servicioAutenticacion";
+import servicioAutenticacion from "../../services/servicioAutenticacion";
 import "./FormularioLogin.css";
 import ModalRecuperarContrasena from "./ModalRecuperarContrasena";
-import MensajeAlerta from "./MensajeAlerta";
-import { validarEmail, validarContrasena } from "../utils/validaciones";
+import MensajeAlerta from "../MensajeAlerta";
+import { validarEmail, validarContrasena } from "../../utils/validaciones";
 import { useNavigate } from "react-router-dom";
+import { handleApiError } from "../../utils/errorHandler";
 
 function FormularioLogin() {
     const navigate = useNavigate();
@@ -33,14 +34,10 @@ function FormularioLogin() {
       await servicioAutenticacion.iniciarSesion({ email, contrasena });
       setMensaje("¡Inicio de sesión exitoso!");
       setTimeout(() => {
-            navigate("/panel");
-          }, 1000);
+        navigate("/panel");
+      }, 1000);
     } catch (err) {
-      if (err.response?.data?.mensaje) {
-        setError(err.response.data.mensaje);
-      } else {
-        setError("Error de conexión con el servidor");
-      }
+      setError(handleApiError(err, "Error al iniciar sesión"));
     }
   };
 

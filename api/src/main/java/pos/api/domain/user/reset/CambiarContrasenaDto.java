@@ -1,4 +1,4 @@
-package pos.api.user.reset;
+package pos.api.domain.user.reset;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
