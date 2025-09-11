@@ -1,14 +1,16 @@
 /* global.css - Estilos globales para la aplicación */
 :root {
-  --color-primary: #4a6491;
-  --color-primary-dark: #2c3e50;
-  --color-secondary: #64748b;
-  --color-success: #10b981;
-  --color-danger: #e74c3c;
-  --color-light: #f8fafc;
-  --color-dark: #1e293b;
-  --gradient-primary: linear-gradient(135deg, #4a6491 0%, #2c3e50 100%);
-  --gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --color-primary: #1e40af;        /* Azul profesional - confianza y estabilidad */
+  --color-primary-dark: #1e3a8a;   /* Azul oscuro - contraste para botones y headers */
+  --color-secondary: #64748b;      /* Gris azulado - neutro y elegante */
+  --color-success: #16a34a;        /* Verde - confirmaciones / ventas completadas */
+  --color-danger: #dc2626;         /* Rojo - alertas / errores */
+  --color-accent: #f59e0b;         /* Naranja dorado - acciones importantes */
+  --color-light: #f8fafc;          /* Fondo general - limpio y claro */
+  --color-dark: #111827;           /* Texto principal - fuerte y legible */
+
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  --gradient-background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
 }
 
 /* Estilos globales para la aplicación */
@@ -101,6 +103,19 @@ body {
   font-weight: 600;
 }
 
+/* Asegurar que todo el texto en el card-header sea blanco */
+.card-header,
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6,
+.card-header p,
+.card-header span {
+  color: white !important;
+}
+
 .card-body {
   padding: 2rem;
 }
@@ -187,6 +202,20 @@ body {
   padding: 1.5rem 2rem;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
+}
+
+/* Asegurar que todo el texto en el modal-header sea blanco */
+.modal-header,
+.modal-header .modal-title,
+.modal-header h1,
+.modal-header h2,
+.modal-header h3,
+.modal-header h4,
+.modal-header h5,
+.modal-header h6,
+.modal-header p,
+.modal-header span {
+  color: white !important;
 }
 
 .modal-title {

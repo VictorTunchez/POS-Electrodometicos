@@ -1,7 +1,20 @@
-/* FormularioLogin.css - Diseño Mejorado para POS */
+/* FormularioLogin.css - Con Nueva Paleta de Colores */
+:root {
+  --color-primary: #1e40af;
+  --color-primary-dark: #1e3a8a;
+  --color-secondary: #64748b;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-accent: #f59e0b;
+  --color-light: #f8fafc;
+  --color-dark: #111827;
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  --gradient-background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+}
+
 .login-container {
   min-height: 100vh;
-  background: #f6f8fa;
+  background: var(--gradient-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,7 +36,7 @@
 /* Panel de marca */
 .login-brand-panel {
   flex: 1.2;
-  background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+  background: var(--gradient-primary);
   color: white;
   padding: 50px;
   display: flex;
@@ -69,7 +82,7 @@
 .logo-container i {
   font-size: 2.8rem;
   margin-right: 15px;
-  color: #4a9dff;
+  color: white;
   background: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 12px;
@@ -86,7 +99,7 @@
   font-size: 1.7rem;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #4a9dff;
+  color: white;
 }
 
 .login-brand-panel p {
@@ -118,7 +131,7 @@
 .feature-item i {
   font-size: 1.4rem;
   margin-right: 15px;
-  color: #4a9dff;
+  color: white;
   min-width: 25px;
 }
 
@@ -149,13 +162,13 @@
 .form-header h2 {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-dark);
   margin-bottom: 12px;
   letter-spacing: 0.5px;
 }
 
 .form-header p {
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
   font-size: 1.1rem;
 }
@@ -179,18 +192,18 @@
 }
 
 .input-container:focus-within {
-  border-color: #4a6491;
-  box-shadow: 0 0 0 3px rgba(74, 100, 145, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
 }
 
 .input-container.input-error {
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
 .input-container.input-success {
-  border-color: #2ecc71;
-  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
 .input-icon-container {
@@ -199,7 +212,7 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  color: #64748b;
+  color: var(--color-secondary);
 }
 
 .input-icon {
@@ -214,20 +227,20 @@
   height: 56px;
   box-sizing: border-box;
   background-color: transparent;
-  color: #1e293b;
+  color: var(--color-dark);
   font-weight: 500;
   outline: none;
 }
 
 .form-control::placeholder {
-  color: #94a3b8;
+  color: var(--color-secondary);
   font-weight: 400;
 }
 
 .password-toggle {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--color-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -238,7 +251,7 @@
 }
 
 .password-toggle:hover {
-  color: #4a6491;
+  color: var(--color-primary);
 }
 
 .password-toggle i {
@@ -255,15 +268,15 @@
 }
 
 .input-success .input-status-icon {
-  color: #2ecc71;
+  color: var(--color-success);
 }
 
 .input-error .input-status-icon {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 .error-message {
-  color: #e74c3c;
+  color: var(--color-danger);
   font-size: 0.9rem;
   margin-top: 8px;
   font-weight: 500;
@@ -273,7 +286,7 @@
 .btn-login {
   width: 100%;
   padding: 16px;
-  background: #4a6491;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 10px;
@@ -286,12 +299,12 @@
   justify-content: center;
   margin-top: 15px;
   height: 56px;
-  box-shadow: 0 4px 6px rgba(74, 100, 145, 0.15);
+  box-shadow: 0 4px 6px rgba(30, 64, 175, 0.15);
 }
 
 .btn-login:hover {
-  background: #3a547e;
-  box-shadow: 0 6px 10px rgba(74, 100, 145, 0.2);
+  background: var(--color-primary-dark);
+  box-shadow: 0 6px 10px rgba(30, 64, 175, 0.2);
   transform: translateY(-2px);
 }
 
@@ -333,7 +346,7 @@
 }
 
 .forgot-password-link {
-  color: #4a6491;
+  color: var(--color-primary);
   cursor: pointer;
   text-decoration: none;
   font-size: 0.95rem;
@@ -344,14 +357,14 @@
 }
 
 .forgot-password-link:hover {
-  color: #3a547e;
-  background-color: #f8fafc;
+  color: var(--color-primary-dark);
+  background-color: var(--color-light);
 }
 
 /* Mejoras de accesibilidad */
 input:focus-visible,
 button:focus-visible {
-  outline: 2px solid #4a6491;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -446,7 +459,6 @@ button:disabled {
   }
 }
 
-
 /* Estilos para el formulario de cambio de contraseña */
 .password-reset-wrapper {
   display: flex;
@@ -474,12 +486,12 @@ button:disabled {
 .password-reset-card .form-header h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-dark);
   margin: 15px 0 10px;
 }
 
 .password-reset-card .form-header p {
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
   font-size: 1.05rem;
 }

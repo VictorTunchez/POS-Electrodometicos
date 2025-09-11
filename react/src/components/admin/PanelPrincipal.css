@@ -1,13 +1,27 @@
-/* PanelPrincipal.css - Diseño Mejorado y Simplificado */
+/* PanelPrincipal.css - Con Nueva Paleta de Colores */
+:root {
+  --color-primary: #1e40af;        /* Azul profesional - confianza y estabilidad */
+  --color-primary-dark: #1e3a8a;   /* Azul oscuro - contraste para botones y headers */
+  --color-secondary: #64748b;      /* Gris azulado - neutro y elegante */
+  --color-success: #16a34a;        /* Verde - confirmaciones / ventas completadas */
+  --color-danger: #dc2626;         /* Rojo - alertas / errores */
+  --color-accent: #f59e0b;         /* Naranja dorado - acciones importantes */
+  --color-light: #f8fafc;          /* Fondo general - limpio y claro */
+  --color-dark: #111827;           /* Texto principal - fuerte y legible */
+
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  --gradient-background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+}
+
 .panel-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--gradient-background);
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Header Styles */
 .panel-header {
-  background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+  background: var(--gradient-primary);
   color: white;
   padding: 1rem 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -32,7 +46,7 @@
 
 .brand-logo {
   font-size: 2.5rem;
-  color: #4a9dff;
+  color: white;
   background: rgba(255, 255, 255, 0.1);
   padding: 12px;
   border-radius: 12px;
@@ -72,7 +86,7 @@
 
 .user-avatar {
   font-size: 2rem;
-  color: #4a9dff;
+  color: white;
 }
 
 .user-details {
@@ -119,24 +133,24 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #2c3e50;
+  color: var(--color-dark);
 }
 
 .menu-item:hover {
-  background: #f1f5f9;
+  background: var(--color-light);
 }
 
 .menu-item i {
-  color: #64748b;
+  color: var(--color-secondary);
   width: 20px;
 }
 
 .logout-item {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 .logout-item i {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 /* Main Content */
@@ -154,13 +168,13 @@
 .welcome-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-dark);
   margin-bottom: 0.5rem;
 }
 
 .welcome-subtitle {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
 }
 
@@ -172,7 +186,7 @@
 .modules-title {
   font-size: 1.8rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--color-dark);
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -199,13 +213,13 @@
 .module-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  border-color: #4a6491;
+  border-color: var(--color-primary);
 }
 
 .module-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #4a6491 0%, #2c3e50 100%);
+  background: var(--gradient-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -225,12 +239,12 @@
 .module-name {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--color-dark);
   margin: 0 0 0.5rem 0;
 }
 
 .module-description {
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -244,7 +258,7 @@
 }
 
 .footer-text {
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
 }
 
@@ -254,7 +268,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
+  background: var(--color-light);
   padding: 2rem;
 }
 
@@ -269,17 +283,17 @@
 
 .error-icon {
   font-size: 4rem;
-  color: #e74c3c;
+  color: var(--color-danger);
   margin-bottom: 1.5rem;
 }
 
 .error-text h3 {
-  color: #2c3e50;
+  color: var(--color-dark);
   margin-bottom: 1rem;
 }
 
 .error-text p {
-  color: #64748b;
+  color: var(--color-secondary);
   margin: 0;
 }
 
