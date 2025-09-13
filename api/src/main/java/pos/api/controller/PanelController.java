@@ -13,7 +13,7 @@ public class PanelController {
 
     @GetMapping("/bienvenida")
     public ResponseEntity<String> saludoBienvenida() {
-        return ResponseEntity.ok("¡Bienvenido al panel!");
+        return ResponseEntity.ok("¡Bienvenido al Sistema POS!");
     }
 }
 

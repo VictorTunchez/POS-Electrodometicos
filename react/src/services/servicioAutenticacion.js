@@ -56,10 +56,30 @@ const obtenerSaludo = async () => {
   }
 };
 
+//metodo paar cierre de sesion
+const logout = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) throw new Error("No hay token disponible");
+
+    const respuesta = await axios.post(`${URL_API}/auth/logout`, null,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return respuesta.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export default {
   iniciarSesion,
   solicitarRecuperacionContrasena,
   cambiarContrasena,
   obtenerSaludo,
+  logout,
 };

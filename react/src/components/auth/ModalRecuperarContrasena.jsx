@@ -138,7 +138,7 @@ function ModalRecuperarContrasena() {
                         Enviando...
                       </>
                     ) : (
-                      "Enviar instrucciones"
+                      "Enviar"
                     )}
                   </button>
                 </form>

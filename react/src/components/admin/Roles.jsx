@@ -238,7 +238,7 @@ function Roles() {
         <div className="module-header">
           <div className="header-top">
             <button className="btn btn-outline-secondary back-button" onClick={() => navigate('/panel')}>
-              <i className="bi bi-arrow-left me-2"></i> Volver al Panel
+              <i className="bi bi-arrow-left me-2"></i> Volver al Inicio
             </button>
             <h1>Gestión de Roles y Permisos</h1>
             <button
