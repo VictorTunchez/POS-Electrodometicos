@@ -96,7 +96,7 @@ function PanelPrincipal() {
     },
     {
       id: 2,
-      nombre: "Gestión de Usuarios",
+      nombre: "Usuarios",
       ruta: "/panel/usuarios",
       icono: "bi-people-fill",
       descripcion: "Administra usuarios y permisos"
@@ -114,6 +114,14 @@ function PanelPrincipal() {
       ruta: "/panel/roles",
       icono: "bi-shield-lock",
       descripcion: "Controla accesos y privilegios"
+    },
+    // NUEVO: Módulo de Productos (agrupa los 3 componentes)
+    {
+      id: 5,
+      nombre: "Bodega",
+      ruta: "/panel/productos",
+      icono: "bi-box-seam",
+      descripcion: "Gestión de productos e inventario"
     }
   ];
 

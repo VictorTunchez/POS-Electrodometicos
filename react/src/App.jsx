@@ -7,6 +7,9 @@ import PanelPrincipal from "./components/admin/PanelPrincipal";
 import Usuarios from "./components/admin/Usuarios";
 import Sucursales from "./components/admin/Sucursales";
 import Roles from "./components/admin/Roles";
+import Categorias from "./components/admin/Categorias";
+import Productos from "./components/admin/products/Productos";
+import LayoutProductos from "./components/admin/LayoutProductos";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,6 +26,13 @@ function App() {
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="sucursales" element={<Sucursales />} />
           <Route path="roles" element={<Roles />} />
+
+          {/* NUEVO: Rutas para el módulo de Productos */}
+          <Route path="productos" element={<LayoutProductos />}>
+            <Route index element={<Navigate to="categorias" replace />} />
+            <Route path="categorias" element={<Categorias />} />
+            <Route path="productos" element={<Productos />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

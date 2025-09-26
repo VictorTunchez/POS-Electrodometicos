@@ -1,0 +1,58 @@
+/* ===== LayoutProductos.css ===== */
+
+/* Contenedor principal del módulo */
+.module-container {
+  padding: 1.5rem;
+}
+
+/* Encabezado */
+.module-header {
+  margin-bottom: 1.5rem;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.header-top h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--bs-dark);
+}
+
+.back-button {
+  font-size: 0.9rem;
+  border-radius: var(--border-radius);
+}
+
+/* ===== Navegación secundaria (Tabs) ===== */
+.subnavigation {
+  border-bottom: 2px solid var(--bs-gray-300);
+  gap: 0.5rem;
+}
+
+.subnavigation .nav-link {
+  color: var(--bs-gray-600);
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.6rem 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.subnavigation .nav-link:hover {
+  color: var(--bs-primary);
+  border-bottom: 2px solid var(--bs-primary);
+  background-color: transparent;
+}
+
+.subnavigation .nav-link.active {
+  color: var(--bs-primary);
+  border-bottom: 2px solid var(--bs-primary);
+  font-weight: 600;
+}

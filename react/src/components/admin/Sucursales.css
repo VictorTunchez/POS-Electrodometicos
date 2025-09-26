@@ -1,9 +1,2 @@
-/* Sucursales.css - Estilos específicos para el componente Sucursales */
-.sucursales-container {
-  composes: module-container;
-}
 
-.sucursales-header {
-  composes: module-header;
-}
 
