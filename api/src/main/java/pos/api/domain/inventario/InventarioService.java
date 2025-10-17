@@ -3,11 +3,12 @@ package pos.api.domain.inventario;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pos.api.domain.product.IProductoRepository;
-import pos.api.domain.product.Producto;
+import pos.api.domain.producto.IProductoRepository;
+import pos.api.domain.producto.Producto;
 import pos.api.domain.sucursal.ISucursalRepository;
 import pos.api.domain.sucursal.Sucursal;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -19,6 +20,7 @@ public class InventarioService {
     private final IProductoRepository productoRepository;
     private final ISucursalRepository sucursalRepository;
 
+    @Transactional
     public InventarioResponseDto crearRegistroInventario(InventarioRequestDto dto) {
         Producto producto = productoRepository.findByIdAndDeletedAtIsNull(dto.productoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado o inactivo con ID: " + dto.productoId()));
@@ -31,14 +33,20 @@ public class InventarioService {
             throw new IllegalStateException("Ya existe un inventario para este producto en la sucursal");
         }
 
-        if (dto.stockMinimo() < 0) throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
-        if (dto.stockActual() < 0) throw new IllegalArgumentException("El stock actual no puede ser negativo");
+        // Validar que el stock mínimo no sea negativo
+        if (dto.stockMinimo().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
+        }
 
+        // SIEMPRE crear con stock actual 0 y stock mínimo por defecto 5
         Inventario inventario = new Inventario();
         inventario.setProducto(producto);
         inventario.setSucursal(sucursal);
-        inventario.setStockActual(dto.stockActual());
-        inventario.setStockMinimo(dto.stockMinimo());
+        inventario.setStockActual(BigDecimal.ZERO);
+
+        // Stock mínimo: usar el proporcionado o 5 por defecto
+        BigDecimal stockMinimo = dto.stockMinimo() != null ? dto.stockMinimo() : new BigDecimal(5);
+        inventario.setStockMinimo(stockMinimo);
 
         Inventario guardado = inventarioRepository.save(inventario);
         return mapToResponse(guardado);
@@ -88,12 +96,13 @@ public class InventarioService {
         Sucursal sucursal = sucursalRepository.findById(dto.sucursalId())
                 .orElseThrow(() -> new IllegalArgumentException("Sucursal no encontrada con ID: " + dto.sucursalId()));
 
-        if (dto.stockMinimo() < 0) throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
-        if (dto.stockActual() < 0) throw new IllegalArgumentException("El stock actual no puede ser negativo");
+        if (dto.stockMinimo().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
+        }
 
+        // ACTUALIZAR SOLO DATOS BÁSICOS - NUNCA EL STOCK ACTUAL
         inventario.setProducto(producto);
         inventario.setSucursal(sucursal);
-        inventario.setStockActual(dto.stockActual());
         inventario.setStockMinimo(dto.stockMinimo());
 
         Inventario actualizado = inventarioRepository.save(inventario);
@@ -114,39 +123,51 @@ public class InventarioService {
                 .toList();
     }
 
+
+     // METODOS INTERNOS PARA COMPRAS/VENTAS (NO EXPUESTOS EN CONTROLLER)
     @Transactional
-    public InventarioResponseDto ajustarStock(Long id, Integer cantidad) {
-        Inventario inventario = inventarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado con ID: " + id));
-
-        int nuevoStock = inventario.getStockActual() + cantidad;
-        if (nuevoStock < 0) throw new IllegalArgumentException("No hay suficiente stock");
-
-        inventario.setStockActual(nuevoStock);
-        return mapToResponse(inventarioRepository.save(inventario));
+    public void actualizarStockPorCompra(Long productoId, Long sucursalId, BigDecimal cantidad) {
+        Inventario inventario = obtenerOcrearInventario(productoId, sucursalId);
+        inventario.agregarStock(cantidad);
+        inventarioRepository.save(inventario);
     }
 
     @Transactional
-    public InventarioResponseDto ajustarStock(Long productoId, Long sucursalId, Integer cantidad) {
-        Inventario inventario = inventarioRepository.findByProductoIdAndSucursalId(productoId, sucursalId)
-                .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado para producto " + productoId + " en sucursal " + sucursalId));
+    public void actualizarStockPorVenta(Long productoId, Long sucursalId, BigDecimal cantidad) {
+        Inventario inventario = inventarioRepository
+                .findByProductoIdAndSucursalId(productoId, sucursalId)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
 
-        int nuevoStock = inventario.getStockActual() + cantidad;
-        if (nuevoStock < 0) throw new IllegalArgumentException("No hay suficiente stock");
+        // Validar stock suficiente
+        if (inventario.getStockActual().compareTo(cantidad) < 0) {
+            throw new RuntimeException("Stock insuficiente. Stock actual: " + inventario.getStockActual() + ", solicitado: " + cantidad);
+        }
 
-        inventario.setStockActual(nuevoStock);
-        return mapToResponse(inventarioRepository.save(inventario));
+        inventario.reducirStock(cantidad);
+        inventarioRepository.save(inventario);
     }
 
-    @Transactional
-    public InventarioResponseDto actualizarStockMinimo(Long id, Integer stockMinimo) {
-        Inventario inventario = inventarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado con ID: " + id));
+    public BigDecimal obtenerStockActual(Long productoId, Long sucursalId) {
+        return inventarioRepository.findByProductoIdAndSucursalId(productoId, sucursalId)
+                .map(Inventario::getStockActual)
+                .orElse(BigDecimal.ZERO);
+    }
 
-        if (stockMinimo < 0) throw new IllegalArgumentException("El stock mínimo no puede ser negativo");
+    private Inventario obtenerOcrearInventario(Long productoId, Long sucursalId) {
+        return inventarioRepository
+                .findByProductoIdAndSucursalId(productoId, sucursalId)
+                .orElseGet(() -> {
+                    // Crear automáticamente si no existe
+                    Producto producto = productoRepository.getReferenceById(productoId);
+                    Sucursal sucursal = sucursalRepository.getReferenceById(sucursalId);
 
-        inventario.setStockMinimo(stockMinimo);
-        return mapToResponse(inventarioRepository.save(inventario));
+                    Inventario nuevo = new Inventario();
+                    nuevo.setProducto(producto);
+                    nuevo.setSucursal(sucursal);
+                    nuevo.setStockActual(BigDecimal.ZERO);
+                    nuevo.setStockMinimo(new BigDecimal(5));
+                    return inventarioRepository.save(nuevo);
+                });
     }
 
     private InventarioResponseDto mapToResponse(Inventario inventario) {

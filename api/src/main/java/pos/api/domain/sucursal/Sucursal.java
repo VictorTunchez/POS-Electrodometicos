@@ -2,7 +2,7 @@ package pos.api.domain.sucursal;
 
 import jakarta.persistence.*;
 import lombok.*;
-import pos.api.domain.user.Usuario;
+import pos.api.domain.usuario.Usuario;
 
 import java.time.Instant;
 import java.util.HashSet;

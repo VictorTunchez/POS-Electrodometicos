@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import servicioAutenticacion from "../../services/servicioAutenticacion";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import "./PanelPrincipal.css";
+import Dashboard from "../admin/Dashboard";
 
 function PanelPrincipal() {
   const [saludo, setSaludo] = useState("");
@@ -122,6 +123,34 @@ function PanelPrincipal() {
       ruta: "/panel/productos",
       icono: "bi-box-seam",
       descripcion: "Gestión de productos e inventario"
+    },
+     {
+      id: 6,
+      nombre: "Proveedores",
+      ruta: "/panel/proveedores",
+      icono: "bi-person-fill",
+      descripcion: "Gestión de proveedores"
+    },
+     {
+      id: 7,
+      nombre: "Compras",
+      ruta: "/panel/compras",
+      icono: "bi-cart-plus",
+      descripcion: "Gestión de compras"
+    },
+    {
+      id: 8,
+      nombre: "Clientes",
+      ruta: "/panel/clientes",
+      icono: "bi-people",
+      descripcion: "Gestión de clientes"
+    },
+    {
+      id: 9,
+      nombre: "Ventas",
+      ruta: "/panel/ventas",
+      icono: "bi-currency-dollar",
+      descripcion: "Gestión de ventas"
     }
   ];
 
@@ -138,11 +167,8 @@ function PanelPrincipal() {
 
   // Función para renderizar el contenido del dashboard
   const renderDashboard = () => (
-    <div className="dashboard-content">
-      <h2 className="welcome-title">{saludo}</h2>
-      <p className="welcome-subtitle">Venta de electrodomesticos y mas... </p>
-    </div>
-  );
+  <Dashboard />
+);
 
   if (error) {
     return (

@@ -1,14 +1,13 @@
 package pos.api.controller;
 
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.user.reset.OlvidoContrasenaDto;
-import pos.api.domain.user.reset.CambiarContrasenaService;
-import pos.api.domain.user.reset.CambiarContrasenaDto;
+import pos.api.domain.usuario.reset.OlvidoContrasenaDto;
+import pos.api.domain.usuario.reset.CambiarContrasenaService;
+import pos.api.domain.usuario.reset.CambiarContrasenaDto;
 
 import java.io.UnsupportedEncodingException;
 

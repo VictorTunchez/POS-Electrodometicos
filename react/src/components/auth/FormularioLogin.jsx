@@ -84,28 +84,18 @@ function FormularioLogin() {
       {error && <MensajeAlerta tipo="error" mensaje={error} />}
 
       <div className="login-wrapper">
-        {/* Panel izquierdo con información de la marca */}
+        {/* Panel izquierdo ultra simple */}
         <div className="login-brand-panel">
           <div className="brand-content">
-            <div className="logo-container">
-              <i className="bi bi-cash-register"></i>
-              <h1>El Hogar</h1>
+            <div className="brand-icon">
+              <i className="bi bi-house-door"></i>
             </div>
-            <h2>Sistema POS</h2>
-            <p>Tu tienda de electrodomésticos de confianza</p>
-            <div className="brand-features">
-              <div className="feature-item">
-                <i className="bi bi-shield-check"></i>
-                <span>Sistema seguro</span>
-              </div>
-              <div className="feature-item">
-                <i className="bi bi-graph-up"></i>
-                <span>Gestión de inventario</span>
-              </div>
-              <div className="feature-item">
-                <i className="bi bi-cash-coin"></i>
-                <span>Control de ventas</span>
-              </div>
+            <div className="brand-text">
+              <h1>El Hogar</h1>
+              <p>Electrodomésticos y más</p>
+            </div>
+            <div className="brand-subtitle">
+              <p>Sistema de punto de venta</p>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pos.api.domain.user.logout.LogoutService;
+import pos.api.domain.usuario.logout.LogoutService;
 
 @RestController
 @RequestMapping("/auth")

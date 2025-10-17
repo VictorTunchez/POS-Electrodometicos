@@ -21,7 +21,19 @@ const ProductoRow = ({
     }
   };
 
+  // Función para formatear precio
+  const formatearPrecio = (precio) => {
+    if (!precio) return "N/A";
+    return `Q${parseFloat(precio).toFixed(2)}`;
+  };
+
+  // Obtener precio principal para mostrar (minorista)
+  const obtenerPrecioPrincipal = () => {
+    return producto.precioMinorista || producto.precios?.find(p => p.tipoPrecio === 'MINORISTA' && p.activo)?.precio;
+  };
+
   const estadoVisual = obtenerEstadoVisual();
+  const precioPrincipal = obtenerPrecioPrincipal();
 
   return (
     <tr className={!producto.activo ? 'table-secondary' : ''}>
@@ -43,6 +55,9 @@ const ProductoRow = ({
             {producto.codigoBarras && (
               <div><small className="text-muted">Cód: {producto.codigoBarras}</small></div>
             )}
+            {producto.unidadMedidaAbreviatura && (
+              <div><small className="text-muted">Unidad: {producto.unidadMedidaAbreviatura}</small></div>
+            )}
             {selectedSucursal !== "TODAS" && !producto.tieneInventarioEnSucursal && (
               <span className="badge bg-warning badge-sm">Sin inventario aquí</span>
             )}
@@ -52,14 +67,20 @@ const ProductoRow = ({
       
       <td>
         <div>
-          <small className="text-muted">Compra: ${producto.precioCompra}</small>
+          <small className="text-muted">Compra: Q{producto.costoPromedio}</small>
           <br />
-          <strong>Venta: ${producto.precioVenta}</strong>
+          <strong>Venta: {formatearPrecio(precioPrincipal)}</strong>
+          {producto.margenDefault && (
+            <div><small className="text-muted">Margen: {producto.margenDefault}%</small></div>
+          )}
         </div>
       </td>
       
       <td>
         <span className="badge bg-info">{producto.nombreCategoria}</span>
+        {producto.unidadCompraAbreviatura && (
+          <div><small className="text-muted">Compra: {producto.unidadCompraAbreviatura}</small></div>
+        )}
       </td>
       
       <td>
@@ -83,9 +104,9 @@ const ProductoRow = ({
               <div key={inv.id} className="d-flex justify-content-between align-items-center mb-1">
                 <span>{obtenerNombreSucursal(inv.sucursalId)}:</span>
                 <span className={`badge ${
-                  (parseInt(inv.stockActual) || 0) <= (parseInt(inv.stockMinimo) || 0) ? 'bg-warning' : 'bg-success'
+                  (parseFloat(inv.stockActual) || 0) <= (parseFloat(inv.stockMinimo) || 0) ? 'bg-warning' : 'bg-success'
                 }`}>
-                  {inv.stockActual} / {inv.stockMinimo}
+                  {parseFloat(inv.stockActual).toFixed(2)} / {parseFloat(inv.stockMinimo).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -98,7 +119,7 @@ const ProductoRow = ({
           producto.stockTotal === 0 ? 'bg-danger' :
           producto.tieneStockBajo ? 'bg-warning' : 'bg-success'
         }`}>
-          {producto.stockTotal} unidades
+          {parseFloat(producto.stockTotal).toFixed(2)} unidades
         </span>
       </td>
       

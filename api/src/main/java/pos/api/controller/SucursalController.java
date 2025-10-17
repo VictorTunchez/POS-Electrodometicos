@@ -33,7 +33,7 @@ public class SucursalController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('SUCURSALES_OBTENERPORID')")
+    @PreAuthorize("@autorizacionService.tienePermiso('SUCURSALES_VER')")
     @GetMapping("/{id}")
     public ResponseEntity<SucursalResponseDto> obtenerSucursal(@PathVariable Long id) {
         SucursalResponseDto response = sucursalService.obtenerSucursal(id);

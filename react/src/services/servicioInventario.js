@@ -62,7 +62,13 @@ const obtenerInventarioPorProductoSucursal = async (productoId, sucursalId) => {
 // Crear nuevo registro de inventario
 const crearInventario = async (datosInventario) => {
   try {
-    const respuesta = await api.post("/api/inventario", datosInventario);
+    const datosEnviar = {
+      productoId: parseInt(datosInventario.productoId),
+      sucursalId: parseInt(datosInventario.sucursalId),
+      stockMinimo: parseFloat(datosInventario.stockMinimo) || 5
+    };
+    
+    const respuesta = await api.post("/api/inventario", datosEnviar);
     return respuesta.data;
   } catch (error) {
     throw error;
@@ -72,7 +78,13 @@ const crearInventario = async (datosInventario) => {
 // Actualizar registro de inventario por ID
 const actualizarInventario = async (id, datosInventario) => {
   try {
-    const respuesta = await api.put(`/api/inventario/${id}`, datosInventario);
+    const datosEnviar = {
+      productoId: parseInt(datosInventario.productoId),
+      sucursalId: parseInt(datosInventario.sucursalId),
+      stockMinimo: parseFloat(datosInventario.stockMinimo) || 5
+    };
+    
+    const respuesta = await api.put(`/api/inventario/${id}`, datosEnviar);
     return respuesta.data;
   } catch (error) {
     throw error;
@@ -98,35 +110,6 @@ const obtenerStockBajo = async () => {
   }
 };
 
-// Ajustar stock por ID del registro de inventario
-const ajustarStock = async (id, cantidad) => {
-  try {
-    const respuesta = await api.post(`/api/inventario/${id}/ajustar-stock?cantidad=${cantidad}`);
-    return respuesta.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// Actualizar stock mínimo por ID del registro de inventario
-const actualizarStockMinimo = async (id, stockMinimo) => {
-  try {
-    const respuesta = await api.patch(`/api/inventario/${id}/stock-minimo?stockMinimo=${stockMinimo}`);
-    return respuesta.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// Ajustar stock alternativo por productoId y sucursalId
-const ajustarStockPorProductoSucursal = async (productoId, sucursalId, cantidad) => {
-  try {
-    const respuesta = await api.post(`/api/inventario/producto/${productoId}/sucursal/${sucursalId}/ajustar-stock?cantidad=${cantidad}`);
-    return respuesta.data;
-  } catch (error) {
-    throw error;
-  }
-};
 
 export default {
   obtenerTodoInventario,
@@ -136,8 +119,5 @@ export default {
   crearInventario,
   actualizarInventario,
   eliminarInventario,
-  obtenerStockBajo,
-  ajustarStock,
-  actualizarStockMinimo,
-  ajustarStockPorProductoSucursal
+  obtenerStockBajo
 };

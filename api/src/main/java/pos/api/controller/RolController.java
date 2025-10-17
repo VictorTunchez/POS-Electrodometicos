@@ -5,10 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.user.rol.PermisoResponseDto;
-import pos.api.domain.user.rol.RolRequestDto;
-import pos.api.domain.user.rol.RolResponseDto;
-import pos.api.domain.user.rol.RolService;
+import pos.api.domain.usuario.rol.PermisoResponseDto;
+import pos.api.domain.usuario.rol.RolRequestDto;
+import pos.api.domain.usuario.rol.RolResponseDto;
+import pos.api.domain.usuario.rol.RolService;
 import java.util.List;
 
 @RestController
@@ -32,7 +32,7 @@ public class RolController {
         return ResponseEntity.ok(rolService.listarRoles());
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('ROLES_OBTENERPORID')")
+    @PreAuthorize("@autorizacionService.tienePermiso('ROLES_VER')")
     @GetMapping("/{id}")
     public ResponseEntity<RolResponseDto> obtenerRolPorId(@PathVariable Long id) {
         return ResponseEntity.ok(rolService.obtenerRolPorId(id));

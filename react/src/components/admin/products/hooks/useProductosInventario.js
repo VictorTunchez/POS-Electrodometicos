@@ -3,6 +3,8 @@ import servicioProductos from "../../../../services/servicioProductos";
 import servicioInventario from "../../../../services/servicioInventario";
 import servicioCategorias from "../../../../services/servicioCategorias";
 import servicioSucursales from "../../../../services/servicioSucursales";
+import servicioUnidadesMedida from "../../../../services/servicioUnidadesMedida";
+import servicioPrecios from "../../../../services/servicioPrecios";
 import { handleApiError } from "../../../../utils/errorHandler";
 
 export const useProductosInventario = () => {
@@ -10,12 +12,28 @@ export const useProductosInventario = () => {
   const [inventario, setInventario] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [sucursales, setSucursales] = useState([]);
+  const [unidadesMedida, setUnidadesMedida] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [inventarioCargado, setInventarioCargado] = useState(false);
 
-  // NUEVO: Método para cargar productos según el viewMode
+  // Método para cargar unidades de medida
+  const cargarUnidadesMedida = async () => {
+    try {
+      console.log("Cargando unidades de medida...");
+      const unidadesData = await servicioUnidadesMedida.obtenerUnidadesMedidaActivas();
+      setUnidadesMedida(unidadesData || []);
+      console.log("Unidades de medida cargadas:", unidadesData?.length);
+      return unidadesData || [];
+    } catch (err) {
+      console.error("Error cargando unidades de medida:", err);
+      setUnidadesMedida([]);
+      return [];
+    }
+  };
+
+  // Método para cargar productos según el viewMode
   const cargarProductosSegunModo = async (viewMode = "activos") => {
     try {
       console.log("Cargando productos en modo:", viewMode);
@@ -45,8 +63,8 @@ export const useProductosInventario = () => {
 
       console.log("Iniciando carga completa de datos en modo:", viewMode);
 
-      // MODIFICADO: Cargar productos según el viewMode
-      const [productosData, categoriasData, sucursalesData] = await Promise.all([
+      // MODIFICADO: Cargar productos, categorías, sucursales Y unidades de medida
+      const [productosData, categoriasData, sucursalesData, unidadesData] = await Promise.all([
         cargarProductosSegunModo(viewMode),
         servicioCategorias.obtenerCategorias().catch(err => {
           console.error("Error cargando categorías:", err);
@@ -55,12 +73,17 @@ export const useProductosInventario = () => {
         servicioSucursales.obtenerSucursales().catch(err => {
           console.error("Error cargando sucursales:", err);
           return [];
+        }),
+        cargarUnidadesMedida().catch(err => {
+          console.error("Error cargando unidades de medida:", err);
+          return [];
         })
       ]);
 
       setProductos(productosData || []);
       setCategorias(categoriasData || []);
       setSucursales(sucursalesData || []);
+      setUnidadesMedida(unidadesData || []);
 
       console.log("Datos básicos cargados, cargando inventario...");
       await cargarInventario();
@@ -74,7 +97,7 @@ export const useProductosInventario = () => {
     }
   }, []);
 
-  // NUEVO: Método para recargar solo productos (más rápido)
+  // Método para recargar solo productos (más rápido)
   const recargarProductos = async (viewMode = "activos") => {
     try {
       console.log("Recargando productos en modo:", viewMode);
@@ -106,14 +129,19 @@ export const useProductosInventario = () => {
     }
   };
 
+  // MODIFICADO: Crear producto con nuevos campos
   const crearProducto = async (productoData) => {
     try {
       const datosEnviar = {
         ...productoData,
-        precioCompra: parseFloat(productoData.precioCompra) || 0,
-        precioVenta: parseFloat(productoData.precioVenta) || 0,
+        //precioCompra: parseFloat(productoData.precioCompra) || 0,
         categoriaId: parseInt(productoData.categoriaId) || null,
-        destacado: productoData.destacado || false
+        unidadMedidaId: parseInt(productoData.unidadMedidaId) || null,
+        unidadCompraId: productoData.unidadCompraId ? parseInt(productoData.unidadCompraId) : null,
+        factorConversion: productoData.factorConversion ? parseFloat(productoData.factorConversion) : null,
+        margenDefault: productoData.margenDefault ? parseFloat(productoData.margenDefault) : null,
+        destacado: productoData.destacado || false,
+        generarPreciosAutomaticos: productoData.generarPreciosAutomaticos !== false // true por defecto
       };
       
       await servicioProductos.crearProducto(datosEnviar);
@@ -127,13 +155,17 @@ export const useProductosInventario = () => {
     }
   };
 
+  // MODIFICADO: Actualizar producto con nuevos campos
   const actualizarProducto = async (id, productoData) => {
     try {
       const datosEnviar = {
         ...productoData,
-        precioCompra: parseFloat(productoData.precioCompra) || 0,
-        precioVenta: parseFloat(productoData.precioVenta) || 0,
+        //precioCompra: parseFloat(productoData.precioCompra) || 0,
         categoriaId: parseInt(productoData.categoriaId) || null,
+        unidadMedidaId: parseInt(productoData.unidadMedidaId) || null,
+        unidadCompraId: productoData.unidadCompraId ? parseInt(productoData.unidadCompraId) : null,
+        factorConversion: productoData.factorConversion ? parseFloat(productoData.factorConversion) : null,
+        margenDefault: productoData.margenDefault ? parseFloat(productoData.margenDefault) : null,
         destacado: productoData.destacado || false
       };
       
@@ -216,13 +248,13 @@ export const useProductosInventario = () => {
     }
   };
 
+  // MODIFICADO: Crear inventario - stockActual siempre 0
   const crearInventario = async (inventarioData) => {
     try {
       const datosEnviar = {
         productoId: parseInt(inventarioData.productoId),
         sucursalId: parseInt(inventarioData.sucursalId),
-        stockActual: parseInt(inventarioData.stockActual) || 0,
-        stockMinimo: parseInt(inventarioData.stockMinimo) || 0
+        stockMinimo: parseFloat(inventarioData.stockMinimo) || 5
       };
       
       await servicioInventario.crearInventario(datosEnviar);
@@ -237,13 +269,13 @@ export const useProductosInventario = () => {
     }
   };
 
+  // MODIFICADO: Actualizar inventario - no incluye stockActual
   const actualizarInventario = async (id, inventarioData) => {
     try {
       const datosEnviar = {
         productoId: parseInt(inventarioData.productoId),
         sucursalId: parseInt(inventarioData.sucursalId),
-        stockActual: parseInt(inventarioData.stockActual) || 0,
-        stockMinimo: parseInt(inventarioData.stockMinimo) || 0
+        stockMinimo: parseFloat(inventarioData.stockMinimo) || 5
       };
       
       await servicioInventario.actualizarInventario(id, datosEnviar);
@@ -272,17 +304,28 @@ export const useProductosInventario = () => {
     }
   };
 
-  const ajustarStock = async (inventarioId, cantidad) => {
+
+  // NUEVO: Funciones para manejar precios
+  const generarPreciosAutomaticos = async (productoId, porcentajeMargen) => {
     try {
-      await servicioInventario.ajustarStock(inventarioId, cantidad);
-      setSuccess("Stock ajustado correctamente");
-      await cargarInventario();
+      await servicioPrecios.generarPreciosAutomaticos(productoId, porcentajeMargen);
+      setSuccess("Precios generados automáticamente");
       await recargarProductos("activos");
       return true;
     } catch (err) {
-      const errorMessage = handleApiError(err, "Error al ajustar el stock");
+      const errorMessage = handleApiError(err, "Error al generar precios automáticos");
       setError(errorMessage);
       return false;
+    }
+  };
+
+  const obtenerInformacionMargen = async (productoId) => {
+    try {
+      return await servicioPrecios.obtenerInformacionMargen(productoId);
+    } catch (err) {
+      const errorMessage = handleApiError(err, "Error al obtener información de márgenes");
+      setError(errorMessage);
+      return null;
     }
   };
 
@@ -306,6 +349,7 @@ export const useProductosInventario = () => {
     inventario,
     categorias,
     sucursales,
+    unidadesMedida,
     loading,
     error,
     success,
@@ -326,7 +370,10 @@ export const useProductosInventario = () => {
     crearInventario,
     actualizarInventario,
     eliminarInventario,
-    ajustarStock,
-    obtenerProductoDetalles
+    obtenerProductoDetalles,
+    
+    // NUEVO: Acciones para precios
+    generarPreciosAutomaticos,
+    obtenerInformacionMargen
   };
 };

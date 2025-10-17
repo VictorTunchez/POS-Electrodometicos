@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.category.ActualizarCategoriaRequestDto;
-import pos.api.domain.category.CategoriaRequestDto;
-import pos.api.domain.category.CategoriaResponseDto;
-import pos.api.domain.category.CategoriaService;
+import pos.api.domain.categoria.ActualizarCategoriaRequestDto;
+import pos.api.domain.categoria.CategoriaRequestDto;
+import pos.api.domain.categoria.CategoriaResponseDto;
+import pos.api.domain.categoria.CategoriaService;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class CategoriaController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('CATEGORIAS_OBTENERPORID')")
+    @PreAuthorize("@autorizacionService.tienePermiso('CATEGORIAS_VER')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponseDto> obtenerCategoria(@PathVariable Long id) {
         CategoriaResponseDto response = categoriaService.obtenerCategoria(id);

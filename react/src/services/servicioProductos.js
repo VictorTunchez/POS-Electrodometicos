@@ -72,7 +72,19 @@ const obtenerProductosDestacados = async () => {
 // Crear nuevo producto
 const crearProducto = async (datosProducto) => {
   try {
-    const respuesta = await api.post("/api/productos", datosProducto);
+    // Preparar datos con los nuevos campos
+    const datosEnviar = {
+      ...datosProducto,
+      // Asegurar que los números sean correctos
+      //precioCompra: parseFloat(datosProducto.precioCompra) || 0,
+      margenDefault: datosProducto.margenDefault ? parseFloat(datosProducto.margenDefault) : null,
+      factorConversion: datosProducto.factorConversion ? parseFloat(datosProducto.factorConversion) : null,
+      // Valores por defecto
+      destacado: datosProducto.destacado || false,
+      generarPreciosAutomaticos: datosProducto.generarPreciosAutomaticos !== false // true por defecto
+    };
+
+    const respuesta = await api.post("/api/productos", datosEnviar);
     return respuesta.data;
   } catch (error) {
     throw error;
@@ -82,7 +94,16 @@ const crearProducto = async (datosProducto) => {
 // Actualizar producto existente
 const actualizarProducto = async (id, datosProducto) => {
   try {
-    const respuesta = await api.put(`/api/productos/${id}`, datosProducto);
+    // Preparar datos con los nuevos campos
+    const datosEnviar = {
+      ...datosProducto,
+      //precioCompra: parseFloat(datosProducto.precioCompra) || 0,
+      margenDefault: datosProducto.margenDefault ? parseFloat(datosProducto.margenDefault) : null,
+      factorConversion: datosProducto.factorConversion ? parseFloat(datosProducto.factorConversion) : null,
+      destacado: datosProducto.destacado || false
+    };
+
+    const respuesta = await api.put(`/api/productos/${id}`, datosEnviar);
     return respuesta.data;
   } catch (error) {
     throw error;

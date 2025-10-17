@@ -5,13 +5,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import pos.api.domain.user.IUsuarioRepository;
+import pos.api.domain.usuario.IUsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pos.api.domain.user.Usuario;
+import pos.api.domain.usuario.Usuario;
 
 import java.io.IOException;
 

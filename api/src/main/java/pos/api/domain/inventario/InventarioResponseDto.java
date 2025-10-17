@@ -1,6 +1,7 @@
 package pos.api.domain.inventario;
 
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public record InventarioResponseDto(
@@ -10,10 +11,9 @@ public record InventarioResponseDto(
         String codigoBarras,
         Long sucursalId,
         String nombreSucursal,
-        Integer stockActual,
-        Integer stockMinimo,
+        BigDecimal stockActual,
+        BigDecimal stockMinimo,
         Instant fechaActualizacion,
         Instant createdAt,
         Instant updatedAt
-) {
-}
+) {}

@@ -18,4 +18,8 @@ public interface IInventarioRepository extends JpaRepository<Inventario, Long> {
     List<Inventario> findByStockActualLessThanEqualStockMinimo();
 
     List<Inventario> findByProductoId(Long id);
+
+    // Consulta nativa para productos con stock bajo
+    @Query(value = "SELECT COUNT(*) FROM inventario WHERE stock_actual <= stock_minimo", nativeQuery = true)
+    Long countByStockActualLessThanEqualStockMinimo();
 }

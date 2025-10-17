@@ -1,9 +1,8 @@
 package pos.api.controller;
 
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import pos.api.domain.user.login.AutenticacionDto;
-import pos.api.domain.user.Usuario;
+import pos.api.domain.usuario.login.AutenticacionDto;
+import pos.api.domain.usuario.Usuario;
 import pos.api.infra.security.TokeJwtDto;
 import pos.api.infra.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pos.api.domain.user.login.AutenticacionService;
+import pos.api.domain.usuario.login.AutenticacionService;
 
 @RestController
 @RequestMapping("/login")

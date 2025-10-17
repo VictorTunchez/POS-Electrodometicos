@@ -1,4 +1,4 @@
-/* FormularioLogin.css - Con Nueva Paleta de Colores */
+/* FormularioLogin.css - Versión Minimalista */
 :root {
   --color-primary: #1e40af;
   --color-primary-dark: #1e3a8a;
@@ -33,110 +33,63 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Panel de marca */
+/* Panel de marca - VERSIÓN ULTRA SIMPLE */
 .login-brand-panel {
-  flex: 1.2;
+  flex: 1;
   background: var(--gradient-primary);
   color: white;
-  padding: 50px;
+  padding: 60px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.login-brand-panel::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  right: -100px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.login-brand-panel::after {
-  content: '';
-  position: absolute;
-  bottom: -80px;
-  left: -80px;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
+  align-items: center;
+  text-align: center;
 }
 
 .brand-content {
-  position: relative;
-  z-index: 1;
-}
-
-.logo-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 25px;
+  gap: 25px;
 }
 
-.logo-container i {
-  font-size: 2.8rem;
-  margin-right: 15px;
+/* .brand-icon {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 10px;
+} */
+
+.brand-icon i {
+  font-size: 3.5rem;
   color: white;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 12px;
 }
 
-.logo-container h1 {
-  font-size: 2.2rem;
+.brand-text h1 {
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 8px 0;
   letter-spacing: 0.5px;
 }
 
-.login-brand-panel h2 {
-  font-size: 1.7rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: white;
+.brand-text p {
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
 }
 
-.login-brand-panel p {
-  opacity: 0.85;
-  margin-bottom: 40px;
+.brand-subtitle {
+  margin-top: 15px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-subtitle p {
   font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-.brand-features {
-  margin-top: 50px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 12px 15px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.feature-item:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateX(5px);
-}
-
-.feature-item i {
-  font-size: 1.4rem;
-  margin-right: 15px;
-  color: white;
-  min-width: 25px;
-}
-
-.feature-item span {
-  font-size: 1.05rem;
+  opacity: 0.8;
+  margin: 0;
+  font-weight: 300;
 }
 
 /* Panel de formulario */
@@ -390,20 +343,27 @@ button:disabled {
   }
 
   .login-brand-panel {
-    padding: 30px;
-    text-align: center;
+    padding: 40px 30px;
   }
 
-  .logo-container {
-    justify-content: center;
+  .brand-content {
+    gap: 20px;
   }
 
-  .feature-item {
-    justify-content: center;
+  .brand-icon {
+    padding: 20px;
   }
 
-  .login-form-panel {
-    padding: 30px;
+  .brand-icon i {
+    font-size: 3rem;
+  }
+
+  .brand-text h1 {
+    font-size: 2.2rem;
+  }
+
+  .brand-text p {
+    font-size: 1.3rem;
   }
 }
 
@@ -416,17 +376,32 @@ button:disabled {
     border-radius: 12px;
   }
 
-  .login-brand-panel, .login-form-panel {
+  .login-brand-panel {
+    padding: 30px 20px;
+  }
+
+  .login-form-panel {
     padding: 25px 20px;
   }
 
-  .logo-container i {
-    font-size: 2.3rem;
-    padding: 12px;
+  .brand-icon {
+    padding: 18px;
   }
 
-  .logo-container h1 {
-    font-size: 1.8rem;
+  .brand-icon i {
+    font-size: 2.5rem;
+  }
+
+  .brand-text h1 {
+    font-size: 2rem;
+  }
+
+  .brand-text p {
+    font-size: 1.2rem;
+  }
+
+  .brand-subtitle p {
+    font-size: 1rem;
   }
 
   .input-container {

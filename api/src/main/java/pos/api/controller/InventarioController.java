@@ -69,27 +69,4 @@ public class InventarioController {
         return ResponseEntity.ok(inventarioService.listarProductosConStockBajo());
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('INVENTARIO_EDITAR')")
-    @PostMapping("/{id}/ajustar-stock")
-    public ResponseEntity<InventarioResponseDto> ajustarStock(@PathVariable Long id,
-                                                              @RequestParam Integer cantidad) {
-        return ResponseEntity.ok(inventarioService.ajustarStock(id, cantidad));
-    }
-
-    @PreAuthorize("@autorizacionService.tienePermiso('INVENTARIO_EDITAR')")
-    @PatchMapping("/{id}/stock-minimo")
-    public ResponseEntity<InventarioResponseDto> actualizarStockMinimo(@PathVariable Long id,
-                                                                       @RequestParam Integer stockMinimo) {
-        return ResponseEntity.ok(inventarioService.actualizarStockMinimo(id, stockMinimo));
-    }
-
-    // Endpoint alternativo para ajustar stock usando productoId y sucursalId
-    @PreAuthorize("@autorizacionService.tienePermiso('INVENTARIO_EDITAR')")
-    @PostMapping("/producto/{productoId}/sucursal/{sucursalId}/ajustar-stock")
-    public ResponseEntity<InventarioResponseDto> ajustarStockPorProductoSucursal(
-            @PathVariable Long productoId,
-            @PathVariable Long sucursalId,
-            @RequestParam Integer cantidad) {
-        return ResponseEntity.ok(inventarioService.ajustarStock(productoId, sucursalId, cantidad));
-    }
 }

@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.product.ActualizarProductoRequestDto;
-import pos.api.domain.product.ProductoRequestDto;
-import pos.api.domain.product.ProductoResponseDto;
-import pos.api.domain.product.ProductoService;
+import pos.api.domain.producto.ActualizarProductoRequestDto;
+import pos.api.domain.producto.ProductoRequestDto;
+import pos.api.domain.producto.ProductoResponseDto;
+import pos.api.domain.producto.ProductoService;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class ProductoController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('PRODUCTOS_OBTENERPORID')")
+    @PreAuthorize("@autorizacionService.tienePermiso('PRODUCTOS_VER')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> obtenerProducto(@PathVariable Long id) {
         ProductoResponseDto response = productoService.obtenerProducto(id);
@@ -81,6 +81,14 @@ public class ProductoController {
     @GetMapping("/destacados")
     public ResponseEntity<List<ProductoResponseDto>> listarProductosDestacados() {
         List<ProductoResponseDto> response = productoService.listarProductosDestacados();
+        return ResponseEntity.ok(response);
+    }
+
+    // Nuevo enpoint opcional
+    @PreAuthorize("@autorizacionService.tienePermiso('PRODUCTOS_VER')")
+    @GetMapping("/unidad-medida/{unidadMedidaId}")
+    public ResponseEntity<List<ProductoResponseDto>> listarProductosPorUnidadMedida(@PathVariable Long unidadMedidaId) {
+        List<ProductoResponseDto> response = productoService.listarProductosPorUnidadMedida(unidadMedidaId);
         return ResponseEntity.ok(response);
     }
 

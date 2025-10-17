@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import pos.api.domain.user.*;
+import pos.api.domain.usuario.*;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('USUARIOS_OBTENERPORID')")
+    @PreAuthorize("@autorizacionService.tienePermiso('USUARIOS_VER')")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDto> obtenerUsuario(@PathVariable Long id) {
         UsuarioResponseDto response = usuarioService.obtenerUsuario(id);

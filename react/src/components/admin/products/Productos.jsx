@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useProductosInventario } from "./hooks/useProductosInventario";
-import { useProductosFilters } from "./hooks/seProductosFilters";
-import FiltersSection from "./components/FiltersSection";
-import ProductosTable from "./components/ProductosTable";
-import ProductoForm from "./components/ProductoForm";
+import  {useProductosInventario}  from "./hooks/useProductosInventario.js";
+import  {useProductosFilters}  from "./hooks/UseProductosFilters.js";
+import FiltersSection from "./components/FiltersSection.jsx";
+import ProductosTable from "./components/ProductosTable/ProductosTable.jsx";
+import ProductoForm from "./components/ProductoForm.jsx";
 import InventarioForm from "./components/InventarioForm";
-import ProductoDetailsModal from "./components/ProductoDetailsModal";
-import LoadingState from "./components/LoadingState";
+import ProductoDetailsModal from "./components/ProductoDetailsModal.jsx";
+// import LoadingState from "./components/LoadingState.jsx";
 import MensajeAlerta from "../../MensajeAlerta";
 import "./ProductosInventario.css";
 
@@ -16,6 +16,7 @@ function ProductosInventario() {
     inventario,
     categorias,
     sucursales,
+    unidadesMedida,
     loading,
     error,
     success,
@@ -32,8 +33,10 @@ function ProductosInventario() {
     crearInventario,
     actualizarInventario,
     eliminarInventario,
-    ajustarStock,
-    obtenerProductoDetalles
+    obtenerProductoDetalles,
+    // NUEVO: Funciones para precios
+    generarPreciosAutomaticos,
+    obtenerInformacionMargen
   } = useProductosInventario();
 
   // Estados de UI
@@ -69,7 +72,7 @@ function ProductosInventario() {
   // Aplicar filtros
   const filteredProductos = filtrarProductos(productosConInventario, filters);
 
-  // NUEVO: Recargar datos cuando cambie el viewMode
+  // Recargar datos cuando cambie el viewMode
   useEffect(() => {
     console.log(" Cambió viewMode a:", filters.viewMode);
     cargarDatos(filters.viewMode);
@@ -81,7 +84,7 @@ function ProductosInventario() {
     cargarInventario(sucursalId);
   };
 
-  // MODIFICADO: Handlers que pasan el viewMode actual
+  // Handlers de productos
   const handleCreateProducto = async (productoData) => {
     const success = await crearProducto(productoData);
     if (success) {
@@ -139,9 +142,6 @@ function ProductosInventario() {
     }
   };
 
-  const handleAjustarStock = async (inventarioId, cantidad) => {
-    await ajustarStock(inventarioId, cantidad);
-  };
 
   // Handler de detalles
   const handleViewDetails = async (id) => {
@@ -157,16 +157,23 @@ function ProductosInventario() {
     }
   };
 
-  // NUEVO: Handler para cambiar viewMode
+  // Handler para cambiar viewMode
   const handleViewModeChange = (nuevoModo) => {
     console.log("Cambiando a modo:", nuevoModo);
     setFilters(prev => ({ ...prev, viewMode: nuevoModo }));
   };
 
-  // Mostrar loading hasta que TODO esté cargado
-  if (loading || !inventarioCargado) {
-    return <LoadingState message="Cargando productos e inventario..." />;
-  }
+  // NUEVO: Handler para generar precios automáticos
+  const handleGenerarPreciosAutomaticos = async (productoId, porcentajeMargen) => {
+    if (window.confirm(`¿Generar precios automáticos con ${porcentajeMargen}% de margen?`)) {
+      await generarPreciosAutomaticos(productoId, porcentajeMargen);
+    }
+  };
+
+  // // Mostrar loading hasta que TODO esté cargado
+  // if (loading || !inventarioCargado) {
+  //   return <LoadingState message="Cargando productos e inventario..." />;
+  // }
 
   return (
     <div className="module-container">
@@ -212,6 +219,7 @@ function ProductosInventario() {
         <ProductoForm
           producto={editingProducto}
           categorias={categorias}
+          unidadesMedida={unidadesMedida}
           onSubmit={editingProducto ? handleUpdateProducto : handleCreateProducto}
           onCancel={() => {
             setShowForm(false);
@@ -244,7 +252,6 @@ function ProductosInventario() {
         onRestoreProducto={handleRestoreProducto}
         onEditInventario={handleEditInventario}
         onDeleteInventario={handleDeleteInventario}
-        onAjustarStock={handleAjustarStock}
         onViewDetails={handleViewDetails}
       />
 
