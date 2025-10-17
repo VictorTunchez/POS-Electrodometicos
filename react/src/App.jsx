@@ -9,7 +9,7 @@ import Sucursales from "./components/admin/sucursales/Sucursales";
 import Roles from "./components/admin/roles/Roles";
 import Categorias from "./components/admin/categorias/Categorias";
 import Productos from "./components/admin/products/Productos";
-import LayoutProductos from "./components/admin/LayoutProductos";
+import LayoutProductos from "./components/admin/products/LayoutProductos";
 import Proveedores from "./components/admin/suppliers/Proveedores";
 import Compras from "./components/admin/compras/Compras";
 import Clientes from "./components/admin/clientes/Clientes";

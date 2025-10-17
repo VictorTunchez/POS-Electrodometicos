@@ -926,3 +926,78 @@
     justify-content: space-between;
   }
 }
+
+/* Añade estos estilos al archivo Dashboard.css */
+
+/* Estilo para la nueva métrica de ventas acumuladas */
+
+.metrica-card.ventas-acumuladas .metrica-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+/* Estilos para la sección de progreso mejorada */
+.meta-ventas-card .meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.sucursal-destacada {
+  font-size: 0.75rem;
+  color: #ffc107;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.sucursal-destacada i {
+  font-size: 0.7rem;
+}
+
+.meta-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.meta-sucursales {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Mejoras en la lista de sucursales */
+.sucursal-item {
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.75rem;
+}
+
+.sucursal-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Estilos para el estado de la barra de progreso */
+.progress-bar {
+  transition: width 0.5s ease-in-out;
+  background: linear-gradient(90deg, #3b82f6, #3b82f6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .meta-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .meta-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}

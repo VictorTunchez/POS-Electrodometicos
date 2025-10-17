@@ -56,13 +56,49 @@ function Dashboard() {
     }
   };
 
-  // Calcular porcentaje para la barra de progreso
+  // Calcular porcentaje para la barra de progreso basado en ventas por sucursal
   const calcularPorcentajeMeta = () => {
     if (!estadisticas) return 0;
-    const ventas = parsearMoneda(estadisticas.ventasHoy);
+    
+    // Calcular el total de ventas de todas las sucursales
+    let totalVentasSucursales = 0;
+    if (estadisticas.ventasPorSucursal && Array.isArray(estadisticas.ventasPorSucursal)) {
+      totalVentasSucursales = estadisticas.ventasPorSucursal.reduce((total, sucursal) => {
+        return total + parsearMoneda(sucursal.ventas || '0');
+      }, 0);
+    }
+    
     const meta = parsearMoneda(estadisticas.metaVentas);
     if (meta === 0) return 0;
-    return Math.min((ventas / meta) * 100, 100);
+    
+    return Math.min((totalVentasSucursales / meta) * 100, 100);
+  };
+
+  // Obtener el total de ventas por sucursal para mostrar
+  const obtenerTotalVentasSucursales = () => {
+    if (!estadisticas || !estadisticas.ventasPorSucursal) return '0.00';
+    
+    const total = estadisticas.ventasPorSucursal.reduce((sum, sucursal) => {
+      return sum + parsearMoneda(sucursal.ventas || '0');
+    }, 0);
+    
+    return total.toLocaleString('es-GT', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  // Obtener la sucursal con mayor rendimiento
+  const obtenerSucursalDestacada = () => {
+    if (!estadisticas || !estadisticas.ventasPorSucursal || estadisticas.ventasPorSucursal.length === 0) {
+      return null;
+    }
+    
+    return estadisticas.ventasPorSucursal.reduce((max, sucursal) => {
+      const ventasActual = parsearMoneda(sucursal.ventas || '0');
+      const ventasMax = parsearMoneda(max.ventas || '0');
+      return ventasActual > ventasMax ? sucursal : max;
+    });
   };
 
   if (cargando) {
@@ -90,13 +126,17 @@ function Dashboard() {
     );
   }
 
+  const sucursalDestacada = obtenerSucursalDestacada();
+  const porcentajeMeta = calcularPorcentajeMeta();
+  const totalVentasSucursales = obtenerTotalVentasSucursales();
+
   return (
     <div className="dashboard-container">
       {/* Header con título */}
       <div className="dashboard-header">
         <div className="dashboard-title">
           <h1>Dashboard Principal</h1>
-          <p>Resumen general del sistema POS</p>
+          <p>Resumen general del negocio</p>
         </div>
         <div className="dashboard-actions">
           <button 
@@ -171,17 +211,17 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Nueva métrica para sucursales */}
-        <div className="metrica-card sucursales">
+        {/* Nueva métrica para ventas acumuladas por sucursal */}
+        <div className="metrica-card ventas-acumuladas">
           <div className="metrica-icon">
-            <i className="bi bi-shop"></i>
+            <i className="bi bi-graph-up-arrow"></i>
           </div>
           <div className="metrica-info">
-            <h3>{formatoEntero(estadisticas?.totalSucursales)}</h3>
-            <p>Sucursales Activas</p>
+            <h3>Q{totalVentasSucursales}</h3>
+            <p>Ventas Acumuladas</p>
             <span className="tendencia info">
-              <i className="bi bi-building"></i>
-              Puntos de venta
+              <i className="bi bi-shop"></i>
+              Total por sucursales
             </span>
           </div>
         </div>
@@ -241,23 +281,33 @@ function Dashboard() {
             </h3>
           </div>
           <div className="alertas-lista">
-            {/* Progreso de meta de ventas */}
+            {/* Progreso de meta de ventas BASADO EN SUCURSALES */}
             <div className="meta-ventas-card">
               <div className="meta-header">
                 <span className="meta-title">Progreso Meta Mensual</span>
-                <span className="meta-valor">Q{estadisticas?.ventasHoy || '0.00'} / Q{estadisticas?.metaVentas || '0.00'}</span>
+                <span className="meta-valor">
+                  Q{totalVentasSucursales} / Q{estadisticas?.metaVentas || '0.00'}
+                  {sucursalDestacada && (
+                    <span className="sucursal-destacada">
+                      <i className="bi bi-star-fill"></i> Líder: {sucursalDestacada.nombre}
+                    </span>
+                  )}
+                </span>
               </div>
               <div className="progress">
                 <div 
                   className="progress-bar" 
                   style={{ 
-                    width: `${calcularPorcentajeMeta()}%` 
+                    width: `${porcentajeMeta}%` 
                   }}
                 ></div>
               </div>
               <div className="meta-footer">
                 <span className="meta-porcentaje">
-                  {Math.round(calcularPorcentajeMeta())}% completado
+                  {Math.round(porcentajeMeta)}% completado
+                </span>
+                <span className="meta-sucursales">
+                  {estadisticas?.ventasPorSucursal?.length || 0} sucursales reportando
                 </span>
               </div>
             </div>
@@ -298,11 +348,12 @@ function Dashboard() {
                 </div>
               </div>
 
-              <div className="alerta-item info">
+              {/* Nueva alerta para ventas acumuladas */}
+              <div className="alerta-item exito">
                 <i className="bi bi-shop"></i>
                 <div className="alerta-content">
-                  <strong>{formatoEntero(estadisticas?.totalSucursales)} sucursales</strong> activas
-                  <small>Puntos de venta en operación</small>
+                  <strong>Q{totalVentasSucursales} en ventas acumuladas</strong> por sucursales
+                  <small>Progreso meta: {Math.round(porcentajeMeta)}%</small>
                 </div>
               </div>
             </div>
@@ -334,7 +385,7 @@ function Dashboard() {
                   <div className="sucursal-stats">
                     <div className="sucursal-stat">
                       <span className="sucursal-ventas">Q{sucursal.ventas}</span>
-                      <span className="sucursal-label">Ventas</span>
+                      <span className="sucursal-label">Ventas Acumuladas</span>
                     </div>
                   </div>
                 </div>
@@ -363,16 +414,16 @@ function Dashboard() {
                 <i className="bi bi-pie-chart"></i>
               </div>
               <div className="placeholder-content">
-                <h4>Análisis de Ventas</h4>
-                <p>Próximamente: Gráficas interactivas con Chart.js</p>
+                <h4>Análisis de Ventas Acumuladas</h4>
+                <p>Progreso mensual basado en ventas por sucursal</p>
                 <div className="placeholder-stats">
                   <div className="stat-item">
-                    <span className="stat-value">Q{estadisticas?.ventasHoy || '0.00'}</span>
-                    <span className="stat-label">Ventas Hoy</span>
+                    <span className="stat-value">Q{totalVentasSucursales}</span>
+                    <span className="stat-label">Ventas Acumuladas</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-value">{estadisticas?.tendenciaVentas || 0}%</span>
-                    <span className="stat-label">Crecimiento</span>
+                    <span className="stat-value">{Math.round(porcentajeMeta)}%</span>
+                    <span className="stat-label">Progreso Meta</span>
                   </div>
                 </div>
               </div>
@@ -401,10 +452,10 @@ function Dashboard() {
                 </div>
               </div>
               <div className="quick-stat">
-                <i className="bi bi-shop text-info"></i>
+                <i className="bi bi-graph-up-arrow text-info"></i>
                 <div>
-                  <span className="stat-number">{formatoEntero(estadisticas?.totalSucursales)}</span>
-                  <span className="stat-desc">Sucursales</span>
+                  <span className="stat-number">{Math.round(porcentajeMeta)}%</span>
+                  <span className="stat-desc">Progreso Meta</span>
                 </div>
               </div>
             </div>
