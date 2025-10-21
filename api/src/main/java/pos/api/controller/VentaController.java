@@ -6,8 +6,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pos.api.domain.usuario.Usuario;
 import pos.api.domain.venta.*;
 
 import java.time.Instant;
@@ -26,9 +28,22 @@ public class VentaController {
 
     @PreAuthorize("@autorizacionService.tienePermiso('VENTAS_CREAR')")
     @PostMapping
-    public ResponseEntity<VentaResponseDto> crearVenta(@RequestBody @Valid VentaRequestDto dto) {
-        VentaResponseDto response = ventaService.crearVenta(dto);
+    public ResponseEntity<VentaResponseDto> crearVenta(
+            @RequestBody @Valid VentaRequestDto dto,
+            @AuthenticationPrincipal Usuario usuario) { // AÑADIR AuthenticationPrincipal
+
+        VentaResponseDto response = ventaService.crearVenta(dto, usuario.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("@autorizacionService.tienePermiso('VENTAS_EDITAR')")
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<VentaResponseDto> cancelarVenta(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuario) { // AÑADIR AuthenticationPrincipal
+
+        VentaResponseDto response = ventaService.cancelarVenta(id, usuario.getId());
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("@autorizacionService.tienePermiso('VENTAS_VER')")
@@ -45,12 +60,6 @@ public class VentaController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@autorizacionService.tienePermiso('VENTAS_EDITAR')")
-    @PostMapping("/{id}/cancelar")
-    public ResponseEntity<VentaResponseDto> cancelarVenta(@PathVariable Long id) {
-        VentaResponseDto response = ventaService.cancelarVenta(id);
-        return ResponseEntity.ok(response);
-    }
 
     @PreAuthorize("@autorizacionService.tienePermiso('VENTAS_VER')")
     @GetMapping("/sucursal/{sucursalId}")

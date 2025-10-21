@@ -15,6 +15,7 @@ import Compras from "./components/admin/compras/Compras";
 import Clientes from "./components/admin/clientes/Clientes";
 import Ventas from "./components/admin/ventas/Ventas";
 // import VentaExito from "./components/admin/ventas/VentaExito";
+import Traslados from "./components/admin/products/traslados/Traslados";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -42,6 +43,7 @@ function App() {
             <Route index element={<Navigate to="categorias" replace />} />
             <Route path="categorias" element={<Categorias />} />
             <Route path="productos" element={<Productos />} />
+            <Route path="traslados" element={<Traslados />} />
           </Route>
         </Route>
       </Routes>

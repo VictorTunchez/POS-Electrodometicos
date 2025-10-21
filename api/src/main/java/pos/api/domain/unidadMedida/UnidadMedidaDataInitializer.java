@@ -28,8 +28,8 @@ public class UnidadMedidaDataInitializer {
                     crearUnidad("Caja", "CJ", TipoUnidad.AMBOS,
                             "Caja contenedora de múltiples unidades (compra y venta)"),
 
-                    crearUnidad("Paquete", "PQT", TipoUnidad.COMPRA,
-                            "Paquete de productos (solo compra)"),
+                    crearUnidad("Paquete", "PQT", TipoUnidad.AMBOS,
+                            "Paquete de productos (compra y venta)"),
 
                     crearUnidad("Kit", "KIT", TipoUnidad.VENTA,
                             "Conjunto de productos relacionados (venta)"),

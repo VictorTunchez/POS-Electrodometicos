@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import ProductoRow from "./ProductoRow";
-import InventarioRow from "./InventarioRow";
+import InventarioExpandible from "./InventarioExpandible";
 
 const ProductosTable = ({
   productos,
@@ -12,8 +12,16 @@ const ProductosTable = ({
   onRestoreProducto,
   onEditInventario,
   onDeleteInventario,
-  onViewDetails
+  onViewDetails,
+  onAjustarInventarioSucursal,
+  onViewMovimientosSucursal
 }) => {
+  const [productoExpandido, setProductoExpandido] = useState(null);
+
+  const toggleExpandirProducto = (productoId) => {
+    setProductoExpandido(productoExpandido === productoId ? null : productoId);
+  };
+
   if (productos.length === 0) {
     return (
       <div className="card">
@@ -36,22 +44,32 @@ const ProductosTable = ({
     <div className="card">
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h5 className="card-title mb-0">
-            Productos e Inventario
-            {selectedSucursal !== "TODAS" && ` - Sucursal: ${obtenerNombreSucursal(selectedSucursal)}`}
-          </h5>
-          <span className="badge bg-primary">{productos.length} productos</span>
+          <div>
+            <h5 className="card-title mb-1">
+              Productos e Inventario
+              {selectedSucursal !== "TODAS" && ` - ${obtenerNombreSucursal(selectedSucursal)}`}
+            </h5>
+            <div className="d-flex gap-2 align-items-center">
+              <span className="badge bg-primary">{productos.length} productos</span>
+              <small className="text-muted">
+                {selectedSucursal === "TODAS" 
+                  ? "Mostrando todas las sucursales" 
+                  : `Filtrado por sucursal actual`
+                }
+              </small>
+            </div>
+          </div>
         </div>
 
         <div className="table-responsive">
-          <table className="table table-hover">
+          <table className="table table-hover table-products">
             <thead className="table-light">
               <tr>
+                <th width="50"></th>
                 <th>Producto</th>
                 <th>Precios</th>
                 <th>Categoría</th>
                 <th>Estado</th>
-                <th>Inventario por Sucursal</th>
                 <th>Stock Total</th>
                 <th className="text-end">Acciones</th>
               </tr>
@@ -67,23 +85,22 @@ const ProductosTable = ({
                     onDelete={onDeleteProducto}
                     onRestore={onRestoreProducto}
                     onViewDetails={onViewDetails}
+                    onToggleExpand={() => toggleExpandirProducto(producto.id)}
+                    isExpanded={productoExpandido === producto.id}
                   />
                   
-                  {/* Filas de inventario */}
-                  {(selectedSucursal === "TODAS" 
-                    ? producto.inventario 
-                    : producto.inventario.filter(inv => 
-                        inv.sucursalId?.toString() === selectedSucursal.toString()
-                      )
-                  ).map(inv => (
-                    <InventarioRow
-                      key={inv.id}
-                      inventario={inv}
+                  {/* Fila expandible de inventario */}
+                  {productoExpandido === producto.id && (
+                    <InventarioExpandible
+                      producto={producto}
+                      selectedSucursal={selectedSucursal}
                       obtenerNombreSucursal={obtenerNombreSucursal}
-                      onEdit={onEditInventario}
-                      onDelete={onDeleteInventario}
+                      onEditInventario={onEditInventario}
+                      onDeleteInventario={onDeleteInventario}
+                      onAjustarInventarioSucursal={onAjustarInventarioSucursal}
+                      onViewMovimientosSucursal={onViewMovimientosSucursal}
                     />
-                  ))}
+                  )}
                 </React.Fragment>
               ))}
             </tbody>

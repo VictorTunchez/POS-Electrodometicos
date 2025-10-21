@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pos.api.domain.usuario.login.AutenticacionService;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/auth")
 @CrossOrigin(origins = "*")
 public class AutenticacionUsuarioController {
 
@@ -25,7 +25,7 @@ public class AutenticacionUsuarioController {
     @Autowired
     private AutenticacionService autenticacionService;
 
-    @PostMapping
+    @PostMapping("/login")
     public ResponseEntity iniciarSesion(@RequestBody @Valid AutenticacionDto datos){
         // Valida credenciales y actualiza lastPasswordChange
         Usuario usuario = autenticacionService.login(datos.email(), datos.contrasena());

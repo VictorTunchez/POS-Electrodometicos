@@ -1,11 +1,14 @@
 package pos.api.domain.venta;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pos.api.domain.cliente.Cliente;
 import pos.api.domain.cliente.IClienteRepository;
 import pos.api.domain.inventario.InventarioService;
+import pos.api.domain.inventario.movimientos.IMovimientoInventarioRepository;
 import pos.api.domain.producto.IProductoRepository;
 import pos.api.domain.producto.Producto;
 import pos.api.domain.sucursal.ISucursalRepository;
@@ -39,10 +42,10 @@ public class VentaService {
     private final IUnidadMedidaRepository unidadMedidaRepository;
     private final InventarioService inventarioService;
     private final StripeService stripeService;
+    private final IMovimientoInventarioRepository movimientoInventarioRepository;
 
     @Transactional
-    public VentaResponseDto crearVenta(VentaRequestDto dto) {
-        // Validar cliente (si se proporciona)
+    public VentaResponseDto crearVenta(VentaRequestDto dto, Long usuarioId) {
         Cliente cliente = null;
         if (dto.clienteId() != null) {
             cliente = clienteRepository.findByIdAndDeletedAtIsNull(dto.clienteId())
@@ -53,9 +56,9 @@ public class VentaService {
         Sucursal sucursal = sucursalRepository.findById(dto.sucursalId())
                 .orElseThrow(() -> new IllegalArgumentException("Sucursal no encontrada con ID: " + dto.sucursalId()));
 
-        // Validar usuario (vendedor)
-        Usuario usuario = usuarioRepository.findByIdAndDeletedAtIsNull(dto.usuarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + dto.usuarioId()));
+        // Validar usuario (vendedor) - AHORA USAMOS EL usuarioId DEL PARÁMETRO
+        Usuario usuario = usuarioRepository.findByIdAndDeletedAtIsNull(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
 
         // Generar número de factura único
         String numeroFactura = generarNumeroFactura();
@@ -87,14 +90,13 @@ public class VentaService {
             ventaGuardada.setStripeSessionId(pagoResponse.sessionId());
             ventaRepository.save(ventaGuardada);
 
-            // **DEVOLVER RESPUESTA CON URL DE STRIPE**
             return mapToResponse(ventaGuardada, pagoResponse.sessionUrl());
         }
 
-        // Si es efectivo, completar inmediatamente
+        // Si es efectivo, completar inmediatamente CON REGISTRO DE MOVIMIENTOS
         if (dto.formaPago() == FormaPago.EFECTIVO) {
             ventaGuardada.setEstado(EstadoVenta.COMPLETADA);
-            actualizarInventario(ventaGuardada, false);
+            actualizarInventario(ventaGuardada, false, usuarioId); // PASA usuarioId
             ventaGuardada = ventaRepository.save(ventaGuardada);
         }
 
@@ -207,7 +209,15 @@ public class VentaService {
         return "FACT-" + Instant.now().toEpochMilli() + "-" + (int)(Math.random() * 1000);
     }
 
-    private void actualizarInventario(Venta venta, boolean esCancelacion) {
+    private void actualizarInventario(Venta venta, boolean esCancelacion, Long usuarioId) {
+        // VERIFICACIÓN EXTRA - asegurar que la venta esté COMPLETADA
+        if (!esCancelacion && venta.getEstado() != EstadoVenta.COMPLETADA) {
+            System.out.println("[INVENTARIO] ERROR: Venta no está COMPLETADA, estado: " + venta.getEstado());
+            return;
+        }
+
+        System.out.println("[INVENTARIO] Procesando inventario para venta: " + venta.getId() + " (Cancelación: " + esCancelacion + ")");
+
         for (DetalleVenta detalle : venta.getDetalles()) {
             BigDecimal cantidadEnUnidadesBase = convertirAUnidadBase(
                     detalle.getProducto(),
@@ -215,22 +225,42 @@ public class VentaService {
                     detalle.getUnidadMedida()
             );
 
+            // Verificar si ya existe movimiento para este producto
+            boolean movimientoExiste = movimientoInventarioRepository
+                    .existsByProductoIdAndSucursalIdAndReferenciaTipoAndReferenciaId(
+                            detalle.getProducto().getId(),
+                            venta.getSucursal().getId(),
+                            "VENTA",
+                            venta.getId());
+
+            if (movimientoExiste) {
+                System.out.println("[INVENTARIO] Movimiento ya existe para producto " + detalle.getProducto().getId() +
+                        " en venta " + venta.getId() + ", omitiendo");
+                continue;
+            }
+
             if (esCancelacion) {
-                // Si es cancelación, sumamos al inventario
                 inventarioService.actualizarStockPorVenta(
                         detalle.getProducto().getId(),
                         venta.getSucursal().getId(),
-                        cantidadEnUnidadesBase.negate() // Negativo para sumar
+                        cantidadEnUnidadesBase.negate(),
+                        usuarioId,
+                        venta.getId(),
+                        "Cancelación de venta #" + venta.getNumeroFactura()
                 );
             } else {
-                // Si es venta, restamos del inventario
                 inventarioService.actualizarStockPorVenta(
                         detalle.getProducto().getId(),
                         venta.getSucursal().getId(),
-                        cantidadEnUnidadesBase
+                        cantidadEnUnidadesBase,
+                        usuarioId,
+                        venta.getId(),
+                        "Venta #" + venta.getNumeroFactura()
                 );
             }
         }
+
+        System.out.println("[INVENTARIO] Procesamiento completado para venta: " + venta.getId());
     }
 
     private BigDecimal convertirAUnidadBase(Producto producto, BigDecimal cantidad, UnidadMedida unidadMedida) {
@@ -253,28 +283,68 @@ public class VentaService {
                 " a " + producto.getUnidadMedida().getNombre());
     }
 
-    // Metodo para confirmar pago de Stripe (será llamado por webhook o endpoint)
     @Transactional
-    public VentaResponseDto confirmarPagoStripe(String sessionId) {
+    public synchronized VentaResponseDto confirmarPagoStripe(String sessionId) {
+        System.out.println("[SYNC] Iniciando confirmación de pago Stripe para session: " + sessionId);
+
+        // VERIFICACIÓN INMEDIATA EN BASE DE DATOS
         Venta venta = ventaRepository.findByStripeSessionId(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada para la sesión de Stripe: " + sessionId));
 
-        if (venta.getEstado() != EstadoVenta.PENDIENTE) {
-            throw new IllegalStateException("La venta ya ha sido procesada");
+        System.out.println("[SYNC] Procesando pago Stripe - Venta ID: " + venta.getId() + ", Estado actual: " + venta.getEstado());
+
+        // VERIFICACIÓN TEMPRANA - SI YA ESTÁ COMPLETADA, RETORNAR INMEDIATAMENTE
+        if (venta.getEstado() == EstadoVenta.COMPLETADA) {
+            System.out.println("🟡 [SYNC] Venta ya completada, retornando sin procesar: " + venta.getId());
+            return mapToResponse(venta);
         }
 
-        // Verificar con Stripe que el pago fue exitoso
+        if (venta.getEstado() != EstadoVenta.PENDIENTE) {
+            throw new IllegalStateException("La venta ya ha sido procesada con estado: " + venta.getEstado());
+        }
+
+        // Verificar pago
         boolean pagoExitoso = stripeService.verificarPagoExitoso(sessionId);
         if (!pagoExitoso) {
             throw new IllegalStateException("El pago no fue exitoso según Stripe");
         }
 
-        // Actualizar estado y reducir inventario
+        // ACTUALIZAR ESTADO PRIMERO
+        System.out.println("[SYNC] Pago verificado exitosamente, actualizando estado a COMPLETADA");
         venta.setEstado(EstadoVenta.COMPLETADA);
-        actualizarInventario(venta, false);
-
         Venta ventaActualizada = ventaRepository.save(venta);
+
+        // HACER FLUSH PARA ASEGURAR PERSISTENCIA INMEDIATA
+        ventaRepository.flush();
+        System.out.println("[SYNC] Estado guardado en BD para venta: " + ventaActualizada.getId());
+
+        // SOLO ENTONCES actualizar inventario
+        System.out.println("[SYNC] Actualizando inventario para venta COMPLETADA: " + ventaActualizada.getId());
+        Long usuarioIdParaMovimiento = obtenerUsuarioIdParaMovimientoStripe(ventaActualizada);
+        actualizarInventario(ventaActualizada, false, usuarioIdParaMovimiento);
+
+        System.out.println("[SYNC] Venta completada e inventario actualizado: " + ventaActualizada.getId());
         return mapToResponse(ventaActualizada);
+    }
+
+    // Metodo auxiliar para obtener usuario en contexto de Stripe
+    private Long obtenerUsuarioIdParaMovimientoStripe(Venta venta) {
+        try {
+            // Intentar obtener el usuario autenticado actual
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated() &&
+                    authentication.getPrincipal() instanceof Usuario) {
+                return ((Usuario) authentication.getPrincipal()).getId();
+            }
+
+            // Si no hay usuario autenticado (webhook), usar el usuario que creó la venta
+            return venta.getUsuario().getId();
+
+        } catch (Exception e) {
+            // Fallback: usar el usuario de la venta
+            System.out.println("No se pudo obtener usuario autenticado, usando usuario de la venta: " + e.getMessage());
+            return venta.getUsuario().getId();
+        }
     }
 
     // Métodos adicionales para listar ventas, obtener por ID, cancelar, etc.
@@ -293,17 +363,24 @@ public class VentaService {
     }
 
     @Transactional
-    public VentaResponseDto cancelarVenta(Long id) {
+    public VentaResponseDto cancelarVenta(Long id, Long usuarioId) {
         Venta venta = ventaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada con ID: " + id));
 
+        System.out.println("Cancelando venta ID: " + id + ", Estado actual: " + venta.getEstado());
+
         if (venta.getEstado() == EstadoVenta.COMPLETADA) {
-            // Si ya estaba completada, revertir el inventario
-            actualizarInventario(venta, true); // true para cancelación (sumar stock)
+            // Solo actualizar inventario si la venta estaba COMPLETADA
+            System.out.println("Revertiendo inventario para venta completada: " + id);
+            actualizarInventario(venta, true, usuarioId);
+        } else {
+            System.out.println("🟡 Venta no estaba COMPLETADA, no se revierte inventario: " + id);
         }
 
         venta.setEstado(EstadoVenta.CANCELADA);
         Venta ventaActualizada = ventaRepository.save(venta);
+
+        System.out.println("Venta cancelada: " + id);
         return mapToResponse(ventaActualizada);
     }
 

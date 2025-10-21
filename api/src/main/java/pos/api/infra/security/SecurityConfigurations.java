@@ -30,7 +30,7 @@ public class SecurityConfigurations {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
 
-                    req.requestMatchers(HttpMethod.POST, "/login","/auth/olvido-contrasena", "/auth/cambiar-contrasena").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/auth/login","/auth/olvido-contrasena", "/auth/cambiar-contrasena").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

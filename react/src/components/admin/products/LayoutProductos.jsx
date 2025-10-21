@@ -36,14 +36,15 @@ function LayoutProductos() {
           >
             <i className="bi bi-box me-2"></i>Productos
           </NavLink>
-{/*           <NavLink */}
-{/*             to="/panel/productos/inventario" */}
-{/*             className={({ isActive }) => */}
-{/*               `nav-link ${isActive ? 'active' : ''}` */}
-{/*             } */}
-{/*           > */}
-{/*             <i className="bi bi-clipboard-data me-2"></i>Inventario */}
-{/*           </NavLink> */}
+          {/* NUEVO: Enlace para Traslados */}
+          <NavLink
+            to="/panel/productos/traslados"
+            className={({ isActive }) =>
+              `nav-link ${isActive ? 'active' : ''}`
+            }
+          >
+            <i className="bi bi-arrow-left-right me-2"></i>Traslados
+          </NavLink>
         </nav>
       </div>
 

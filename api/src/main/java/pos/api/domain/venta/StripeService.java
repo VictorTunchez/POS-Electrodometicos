@@ -5,6 +5,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,7 +13,11 @@ import java.util.List;
 @Service
 public class StripeService {
 
-    private String secretKey = "sk_test_51SFM2pC57XwKRgTNz1RaSJntbOvaMEDZQwVURxvdapi5e3TQerv6dzbZq2fV83bruVjoE6nQq9abIMu8193peSnw00KWAGd5FZ";
+    @Value("${stripe.secret.key}")
+    private String secretKey;
+
+    @Value("${frontend.url.internal}")
+    private String frontendInternal;
 
     public PagoResponseDto crearSesionPagoVenta(Venta venta) {
         Stripe.apiKey = secretKey;
@@ -50,8 +55,8 @@ public class StripeService {
             SessionCreateParams params =
                     SessionCreateParams.builder()
                             .setMode(SessionCreateParams.Mode.PAYMENT)
-                            .setSuccessUrl("http://localhost:5173/panel/ventas?stripe_success=true&session_id={CHECKOUT_SESSION_ID}")
-                            .setCancelUrl("http://localhost:5173/panel/ventas?stripe_cancel=true")
+                            .setSuccessUrl(frontendInternal + "/panel/ventas?stripe_success=true&session_id={CHECKOUT_SESSION_ID}")
+                            .setCancelUrl(frontendInternal + "/panel/ventas?stripe_cancel=true")
                             .addAllLineItem(lineItems)
                             .putMetadata("venta_id", venta.getId().toString())
                             .setCustomerEmail(venta.getCliente() != null ? venta.getCliente().getEmail() : null)

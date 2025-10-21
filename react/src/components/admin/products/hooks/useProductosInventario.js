@@ -5,6 +5,8 @@ import servicioCategorias from "../../../../services/servicioCategorias";
 import servicioSucursales from "../../../../services/servicioSucursales";
 import servicioUnidadesMedida from "../../../../services/servicioUnidadesMedida";
 import servicioPrecios from "../../../../services/servicioPrecios";
+import servicioAjustesInventario from "../../../../services/servicioAjustesInventario";
+import servicioMovimientosInventario from "../../../../services/servicioMovimientosInventario";
 import { handleApiError } from "../../../../utils/errorHandler";
 
 export const useProductosInventario = () => {
@@ -17,6 +19,9 @@ export const useProductosInventario = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [inventarioCargado, setInventarioCargado] = useState(false);
+  
+  // NUEVO: Estado para movimientos
+  const [movimientos, setMovimientos] = useState([]);
 
   // Método para cargar unidades de medida
   const cargarUnidadesMedida = async () => {
@@ -126,6 +131,48 @@ export const useProductosInventario = () => {
       console.error("Error cargando inventario:", err);
       setInventario([]);
       setInventarioCargado(true);
+    }
+  };
+
+  // NUEVO: Cargar movimientos por producto y sucursal
+  const cargarMovimientosPorProductoYSucursal = async (productoId, sucursalId = null) => {
+    try {
+      console.log("Cargando movimientos para producto:", productoId, "sucursal:", sucursalId);
+      
+      let movimientosData;
+      if (sucursalId) {
+        movimientosData = await servicioMovimientosInventario.obtenerMovimientosPorProductoYSucursal(productoId, sucursalId);
+      } else {
+        // Si no hay sucursal específica, cargar todos los movimientos del producto
+        movimientosData = await servicioMovimientosInventario.obtenerMovimientosPorProducto(productoId);
+      }
+      
+      setMovimientos(movimientosData || []);
+      console.log("Movimientos cargados:", movimientosData?.length);
+      return movimientosData || [];
+    } catch (err) {
+      console.error("Error cargando movimientos:", err);
+      setMovimientos([]);
+      return [];
+    }
+  };
+
+  // NUEVO: Realizar ajuste de inventario
+  const realizarAjusteInventario = async (ajusteData) => {
+    try {
+      console.log("Realizando ajuste de inventario:", ajusteData);
+      
+      await servicioAjustesInventario.realizarAjuste(ajusteData);
+      setSuccess("Ajuste de inventario realizado correctamente");
+      
+      // Recargar inventario y productos para reflejar los cambios
+      await cargarInventario();
+      await recargarProductos("activos");
+      return true;
+    } catch (err) {
+      const errorMessage = handleApiError(err, "Error al realizar el ajuste de inventario");
+      setError(errorMessage);
+      return false;
     }
   };
 
@@ -304,7 +351,6 @@ export const useProductosInventario = () => {
     }
   };
 
-
   // NUEVO: Funciones para manejar precios
   const generarPreciosAutomaticos = async (productoId, porcentajeMargen) => {
     try {
@@ -354,6 +400,7 @@ export const useProductosInventario = () => {
     error,
     success,
     inventarioCargado,
+    movimientos, // NUEVO: Estado de movimientos
     
     // Setters
     setError,
@@ -374,6 +421,10 @@ export const useProductosInventario = () => {
     
     // NUEVO: Acciones para precios
     generarPreciosAutomaticos,
-    obtenerInformacionMargen
+    obtenerInformacionMargen,
+
+    // NUEVO: Acciones para ajustes y movimientos
+    realizarAjusteInventario,
+    cargarMovimientosPorProductoYSucursal
   };
 };

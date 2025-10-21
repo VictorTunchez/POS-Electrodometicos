@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useProveedores } from "./useProveedores";
 import { useProveedoresFilters } from "./useProveedoresFilters";
-import FiltersSection from "./filtersSection";
+import FiltersSection from "./FiltersSection";
 import ProveedoresTable from "./ProveedoresTable";
 import ProveedorForm from "./ProveedorForm";
 import ProveedorDetailsModal from "./ProveedorDetail";

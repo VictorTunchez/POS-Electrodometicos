@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const URL_API = 'http://localhost:8080';
+// URL base de la API
+const URL_API = '';
+
 
 // Función para formatear números consistentemente
 const formatoMoneda = new Intl.NumberFormat('es-GT', {

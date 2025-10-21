@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import  {useProductosInventario}  from "./hooks/useProductosInventario.js";
-import  {useProductosFilters}  from "./hooks/UseProductosFilters.js";
+import { useProductosInventario } from "./hooks/useProductosInventario.js";
+import { useProductosFilters } from "./hooks/UseProductosFilters.js";
 import FiltersSection from "./components/FiltersSection.jsx";
 import ProductosTable from "./components/ProductosTable/ProductosTable.jsx";
 import ProductoForm from "./components/ProductoForm.jsx";
 import InventarioForm from "./components/InventarioForm";
 import ProductoDetailsModal from "./components/ProductoDetailsModal.jsx";
+// NUEVOS COMPONENTES
+import AjusteInventarioForm from "./components/AjusteInventarioForm.jsx";
+import MovimientosModal from "./components/MovimientosModal.jsx";
 // import LoadingState from "./components/LoadingState.jsx";
 import MensajeAlerta from "../../MensajeAlerta";
-import "./ProductosInventario.css";
+import "./Productos.css";
 
 function ProductosInventario() {
   const {
@@ -21,6 +24,7 @@ function ProductosInventario() {
     error,
     success,
     inventarioCargado,
+    movimientos, // NUEVO: Movimientos del hook
     setError,
     setSuccess,
     cargarDatos,
@@ -36,18 +40,27 @@ function ProductosInventario() {
     obtenerProductoDetalles,
     // NUEVO: Funciones para precios
     generarPreciosAutomaticos,
-    obtenerInformacionMargen
+    obtenerInformacionMargen,
+    // NUEVAS FUNCIONES: Ajustes y movimientos
+    realizarAjusteInventario,
+    cargarMovimientosPorProductoYSucursal
   } = useProductosInventario();
 
   // Estados de UI
   const [showForm, setShowForm] = useState(false);
   const [showInventarioForm, setShowInventarioForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  // NUEVOS ESTADOS: Para ajustes y movimientos
+  const [showAjusteForm, setShowAjusteForm] = useState(false);
+  const [showMovimientosModal, setShowMovimientosModal] = useState(false);
   
   // Estados de edición
   const [editingProducto, setEditingProducto] = useState(null);
   const [editingInventario, setEditingInventario] = useState(null);
   const [selectedProducto, setSelectedProducto] = useState(null);
+  // NUEVOS ESTADOS: Para selección en ajustes y movimientos
+  const [selectedForAjuste, setSelectedForAjuste] = useState(null);
+  const [selectedForMovimientos, setSelectedForMovimientos] = useState(null);
   
   // Estados de filtros
   const [filters, setFilters] = useState({
@@ -142,7 +155,6 @@ function ProductosInventario() {
     }
   };
 
-
   // Handler de detalles
   const handleViewDetails = async (id) => {
     const producto = await obtenerProductoDetalles(id);
@@ -155,6 +167,43 @@ function ProductosInventario() {
       });
       setShowDetailsModal(true);
     }
+  };
+
+  // NUEVOS HANDLERS: Para ajustes de inventario
+  const handleAjustarInventario = (producto) => {
+    setSelectedForAjuste({ producto });
+    setShowAjusteForm(true);
+  };
+
+  const handleAjustarInventarioSucursal = (inventario) => {
+    setSelectedForAjuste({ inventario });
+    setShowAjusteForm(true);
+  };
+
+  const handleRealizarAjuste = async (ajusteData) => {
+    const success = await realizarAjusteInventario(ajusteData);
+    if (success) {
+      setShowAjusteForm(false);
+      setSelectedForAjuste(null);
+    }
+  };
+
+  // NUEVOS HANDLERS: Para movimientos de inventario
+  const handleViewMovimientos = (productoId) => {
+    const producto = productos.find(p => p.id === productoId);
+    setSelectedForMovimientos({ producto });
+    setShowMovimientosModal(true);
+  };
+
+  const handleViewMovimientosSucursal = (inventario) => {
+    const producto = productos.find(p => p.id === inventario.productoId);
+    const sucursal = sucursales.find(s => s.id === inventario.sucursalId);
+    setSelectedForMovimientos({ producto, sucursal });
+    setShowMovimientosModal(true);
+  };
+
+  const handleCargarMovimientos = async (productoId, sucursalId) => {
+    await cargarMovimientosPorProductoYSucursal(productoId, sucursalId);
   };
 
   // Handler para cambiar viewMode
@@ -214,7 +263,7 @@ function ProductosInventario() {
         />
       </div>
 
-      {/* Formularios */}
+      {/* Formularios existentes */}
       {showForm && (
         <ProductoForm
           producto={editingProducto}
@@ -241,6 +290,32 @@ function ProductosInventario() {
         />
       )}
 
+      {/* NUEVOS FORMULARIOS: Ajustes y movimientos */}
+      {showAjusteForm && (
+        <AjusteInventarioForm
+          {...selectedForAjuste}
+          sucursales={sucursales}
+          onSubmit={handleRealizarAjuste}
+          onCancel={() => {
+            setShowAjusteForm(false);
+            setSelectedForAjuste(null);
+          }}
+        />
+      )}
+
+      {showMovimientosModal && (
+        <MovimientosModal
+          {...selectedForMovimientos}
+          movimientos={movimientos}
+          sucursales={sucursales}
+          onClose={() => {
+            setShowMovimientosModal(false);
+            setSelectedForMovimientos(null);
+          }}
+          onCargarMovimientos={handleCargarMovimientos}
+        />
+      )}
+
       {/* Tabla de productos */}
       <ProductosTable
         productos={filteredProductos}
@@ -253,6 +328,11 @@ function ProductosInventario() {
         onEditInventario={handleEditInventario}
         onDeleteInventario={handleDeleteInventario}
         onViewDetails={handleViewDetails}
+        // NUEVAS PROPS: Para ajustes y movimientos
+        onAjustarInventario={handleAjustarInventario}
+        onViewMovimientos={handleViewMovimientos}
+        onAjustarInventarioSucursal={handleAjustarInventarioSucursal}
+        onViewMovimientosSucursal={handleViewMovimientosSucursal}
       />
 
       {/* Modal de detalles */}

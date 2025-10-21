@@ -1,0 +1,387 @@
+/* Traslados.css - CSS Mejorado y Consistente */
+
+/* ===== ESTILOS GENERALES ===== */
+.traslados-container {
+  padding: 0;
+}
+
+.module-header {
+  background: #fff;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 0;
+}
+
+.module-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.module-header h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ===== FILTROS ===== */
+.filters-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.filters-section .form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== LISTA DE TRASLADOS ===== */
+.traslados-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.traslados-list .table {
+  margin-bottom: 0;
+  border: 1px solid #dee2e6;
+}
+
+.traslados-list .table th {
+  border-top: none;
+  font-weight: 600;
+  color: #495057;
+  background: #f8f9fa;
+  padding: 1rem 0.75rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.traslados-list .table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Estados de las filas */
+.traslado-row {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.traslado-row.estado-pendiente {
+  border-left: 4px solid #ffc107;
+  background-color: #fffbf0;
+}
+
+.traslado-row.estado-completado {
+  border-left: 4px solid #198754;
+  background-color: #f0fff4;
+}
+
+.traslado-row.estado-cancelado {
+  border-left: 4px solid #dc3545;
+  background-color: #fff5f5;
+}
+
+.traslado-row.estado-rechazado {
+  border-left: 4px solid #6c757d;
+  background-color: #f8f9fa;
+}
+
+.traslado-row:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Información en celdas */
+.sucursal-info,
+.user-info {
+  line-height: 1.3;
+}
+
+.sucursal-name,
+.user-name {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.fecha-info {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.productos-count .badge {
+  font-size: 0.75rem;
+  background: #e9ecef;
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Botones de acción */
+.btn-group-sm .btn {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+}
+
+.btn-group {
+  gap: 0.25rem;
+}
+
+/* ===== ESTADOS VACÍOS Y LOADING ===== */
+.empty-state,
+.loading-container {
+  background: white;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  border: 2px dashed #dee2e6;
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #adb5bd;
+  margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* ===== MODAL DE DETALLES (solo para detalles) ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.traslado-details-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  background: white;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ===== DETALLES DEL TRASLADO ===== */
+.info-card {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.info-card h6 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+}
+
+/* Grid de información */
+.info-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.info-item label {
+  font-weight: 500;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Información de sucursales */
+.sucursales-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.sucursal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.sucursal-item:last-child {
+  border-bottom: none;
+}
+
+.sucursal-label {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.sucursal-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Observaciones */
+.observaciones-content {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #007bff;
+  color: #495057;
+  line-height: 1.5;
+}
+
+/* Información de producto */
+.producto-info {
+  line-height: 1.4;
+}
+
+.producto-name {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.producto-info small {
+  color: #6c757d;
+  font-size: 0.75rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .module-header .header-top {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .button-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .filters-section .row {
+    margin-bottom: -0.75rem;
+  }
+  
+  .filters-section .col-md-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .traslados-list {
+    border-radius: 0;
+    box-shadow: none;
+    border: 1px solid #dee2e6;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .btn-group .btn {
+    margin-bottom: 0.25rem;
+    min-width: auto;
+  }
+  
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .traslado-details-modal {
+    max-height: 95vh;
+    margin: 0;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-item,
+  .sucursal-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

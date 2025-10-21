@@ -7,7 +7,7 @@ import UsuariosForm from "./UsuariosForm";
 import UsuariosTable from "./UsuariosTable";
 import FiltersSection from "./FiltersSection";
 import UsuariosDetailsModal from "./UsuariosDetailsModal";
-import RolesForm from "../Roles/RolesForm";
+import RolesForm from "../roles/RolesForm.jsx";
 
 function Usuarios() {
   const navigate = useNavigate();

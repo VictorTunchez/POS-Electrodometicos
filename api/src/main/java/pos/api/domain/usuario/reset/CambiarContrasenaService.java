@@ -2,6 +2,7 @@ package pos.api.domain.usuario.reset;
 
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pos.api.domain.usuario.IUsuarioRepository;
@@ -24,7 +25,9 @@ public class CambiarContrasenaService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    private final String frontendURL = "http://localhost:5173/cambiar-contrasena";
+
+    @Value("${frontend.url.public}")
+    private String frontendPublic;
 
     // Genera temporal token y envía correo
     public void procesarSolicitudRecuperacion(String email) throws MessagingException, UnsupportedEncodingException {
@@ -40,7 +43,7 @@ public class CambiarContrasenaService {
         usuario.setResetContrasenaToken(token);
         repository.save(usuario);
 
-        String link = frontendURL + "?token=" + token;
+        String link = frontendPublic + "/cambiar-contrasena?token=" + token;
         emailService.sendResetPasswordEmail(email, link);
     }
 

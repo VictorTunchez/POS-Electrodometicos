@@ -6,9 +6,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pos.api.domain.compra.*;
+import pos.api.domain.usuario.Usuario;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,15 +27,22 @@ public class CompraController {
 
     @PreAuthorize("@autorizacionService.tienePermiso('COMPRAS_CREAR')")
     @PostMapping
-    public ResponseEntity<CompraResponseDto> registrarCompra(@RequestBody @Valid CompraRequestDto dto) {
-        CompraResponseDto response = compraService.registrarCompra(dto);
+    public ResponseEntity<CompraResponseDto> registrarCompra(
+            @RequestBody @Valid CompraRequestDto dto,
+            @AuthenticationPrincipal Usuario usuario) { // AÑADIR ESTE PARÁMETRO
+
+        CompraResponseDto response = compraService.registrarCompra(dto, usuario.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // MÉTODOS MODIFICADOS - CON @AuthenticationPrincipal
     @PreAuthorize("@autorizacionService.tienePermiso('COMPRAS_EDITAR')")
     @PostMapping("/{id}/recibir")
-    public ResponseEntity<CompraResponseDto> recibirCompra(@PathVariable Long id) {
-        CompraResponseDto response = compraService.recibirCompra(id);
+    public ResponseEntity<CompraResponseDto> recibirCompra(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuario) { // Spring inyecta el usuario automáticamente
+
+        CompraResponseDto response = compraService.recibirCompra(id, usuario.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -41,15 +50,20 @@ public class CompraController {
     @PostMapping("/{id}/recibir-parcial")
     public ResponseEntity<CompraResponseDto> recibirCompraParcial(
             @PathVariable Long id,
-            @RequestBody @Valid List<DetalleRecepcionRequestDto> detallesRecepcion) {
-        CompraResponseDto response = compraService.recibirCompraParcial(id, detallesRecepcion);
+            @RequestBody @Valid List<DetalleRecepcionRequestDto> detallesRecepcion,
+            @AuthenticationPrincipal Usuario usuario) {
+
+        CompraResponseDto response = compraService.recibirCompraParcial(id, detallesRecepcion, usuario.getId());
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("@autorizacionService.tienePermiso('COMPRAS_EDITAR')")
     @PostMapping("/{id}/cancelar")
-    public ResponseEntity<CompraResponseDto> cancelarCompra(@PathVariable Long id) {
-        CompraResponseDto response = compraService.cancelarCompra(id);
+    public ResponseEntity<CompraResponseDto> cancelarCompra(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuario) {
+
+        CompraResponseDto response = compraService.cancelarCompra(id, usuario.getId());
         return ResponseEntity.ok(response);
     }
 

@@ -80,6 +80,10 @@ public class DataInitializer implements CommandLineRunner {
                 {"INVENTARIO_EDITAR", "Editar inventario", "Inventario"},
                 {"INVENTARIO_ELIMINAR", "Eliminar inventario", "Inventario"},
 
+                //Nuevos roles de inventario
+                {"INVENTARIO_AJUSTAR", "Ajustar inventarios", "Inventario"},
+                {"INVENTARIO_VER_MOVIMIENTOS", "Ver movimientos", "Inventario"},
+
                 // Precios
                 {"PRECIOS_CREAR", "Crear precios", "Precios"},
                 {"PRECIOS_VER", "Ver precios", "Precios"},
@@ -133,7 +137,7 @@ public class DataInitializer implements CommandLineRunner {
                 {"VENTAS_CREAR", "Crear ventas", "Ventas"},
                 {"VENTAS_VER", "Ver ventas", "Ventas"},
                 {"VENTAS_EDITAR", "Editar ventas", "Ventas"},
-                {"VENTAS_ELIMINAR", "Eliminar ventas", "Ventas"}
+                {"VENTAS_ELIMINAR", "Eliminar ventas", "Ventas"},
         };
 
         Set<Permiso> permisosCreados = new HashSet<>();

@@ -2,11 +2,11 @@
 import axios from "axios";
 
 // URL base de la API
-const URL_API = "http://localhost:8080";
+const URL_API = '';
 
 const iniciarSesion = async (credenciales) => {
   try {
-    const respuesta = await axios.post(`${URL_API}/login`, credenciales);
+    const respuesta = await axios.post(`${URL_API}/auth/login`, credenciales);
 
     if (respuesta.data.token) {
       localStorage.setItem("token", respuesta.data.token);

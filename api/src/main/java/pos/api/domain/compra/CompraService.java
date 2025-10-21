@@ -41,9 +41,9 @@ public class CompraService {
     private final IPrecioProductoRepository precioProductoRepository;
     private final CalculadoraPreciosService calculadoraPreciosService;
 
+
     @Transactional
-    public CompraResponseDto registrarCompra(CompraRequestDto dto) {
-        // Validar proveedor
+    public CompraResponseDto registrarCompra(CompraRequestDto dto, Long usuarioId) {
         Proveedor proveedor = proveedorRepository.findByIdAndDeletedAtIsNull(dto.proveedorId())
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado con ID: " + dto.proveedorId()));
 
@@ -76,9 +76,9 @@ public class CompraService {
 
         Compra compraGuardada = compraRepository.save(compra);
 
-        // Si la compra está recibida al crearse, procesar recepción
+        // Si la compra está recibida al crearse, procesar recepción CON EL USUARIO
         if (dto.fechaRecepcion() != null) {
-            return recibirCompra(compraGuardada.getId());
+            return recibirCompra(compraGuardada.getId(), usuarioId); // Ahora pasa el usuarioId
         }
 
         return mapToResponse(compraGuardada);
@@ -220,7 +220,7 @@ public class CompraService {
     }
 
     @Transactional
-    public CompraResponseDto recibirCompra(Long compraId) {
+    public CompraResponseDto recibirCompra(Long compraId, Long usuarioId) { // NUEVO PARÁMETRO: usuarioId
         Compra compra = compraRepository.findById(compraId)
                 .orElseThrow(() -> new IllegalArgumentException("Compra no encontrada con ID: " + compraId));
 
@@ -232,7 +232,7 @@ public class CompraService {
             throw new IllegalStateException("No se puede recibir una compra cancelada");
         }
 
-        // 1. Primero actualizar el inventario
+        // 1. Primero actualizar el inventario CON REGISTRO DE MOVIMIENTOS
         for (DetalleCompra detalle : compra.getDetalles()) {
             BigDecimal cantidadEnUnidadesBase = convertirAUnidadBase(
                     detalle.getProducto(),
@@ -240,10 +240,14 @@ public class CompraService {
                     detalle.getUnidadMedida()
             );
 
+            // NUEVA LLAMADA: Con parámetros para registro de movimientos
             inventarioService.actualizarStockPorCompra(
                     detalle.getProducto().getId(),
                     compra.getSucursal().getId(),
-                    cantidadEnUnidadesBase
+                    cantidadEnUnidadesBase,
+                    usuarioId,                    // NUEVO: ID del usuario
+                    compraId,                     // NUEVO: ID de la compra
+                    "Recepción completa de compra #" + compra.getNumeroFactura() // NUEVO: Observaciones
             );
 
             // Marcar detalle como recibido
@@ -359,7 +363,7 @@ public class CompraService {
     }
 
     @Transactional
-    public CompraResponseDto recibirCompraParcial(Long compraId, List<DetalleRecepcionRequestDto> detallesRecepcion) {
+    public CompraResponseDto recibirCompraParcial(Long compraId, List<DetalleRecepcionRequestDto> detallesRecepcion, Long usuarioId) {
         Compra compra = compraRepository.findById(compraId)
                 .orElseThrow(() -> new IllegalArgumentException("Compra no encontrada con ID: " + compraId));
 
@@ -415,7 +419,7 @@ public class CompraService {
             }
         }
 
-        // 3. LUEGO ACTUALIZAR INVENTARIO
+        // 3. LUEGO ACTUALIZAR INVENTARIO CON REGISTRO DE MOVIMIENTOS
         for (RecepcionValida recepcion : recepcionesValidas) {
             if (recepcion.cantidadRecibida.compareTo(BigDecimal.ZERO) > 0) {
                 BigDecimal cantidadEnUnidadesBase = convertirAUnidadBase(
@@ -424,10 +428,16 @@ public class CompraService {
                         recepcion.detalle.getUnidadMedida()
                 );
 
+                // NUEVA LLAMADA: Con parámetros para registro de movimientos
                 inventarioService.actualizarStockPorCompra(
                         recepcion.detalle.getProducto().getId(),
                         compra.getSucursal().getId(),
-                        cantidadEnUnidadesBase
+                        cantidadEnUnidadesBase,
+                        usuarioId,                    // NUEVO: ID del usuario
+                        compraId,                     // NUEVO: ID de la compra
+                        "Recepción parcial de compra #" + compra.getNumeroFactura() +
+                                " - Producto: " + recepcion.detalle.getProducto().getNombreProducto() +
+                                " - Cantidad: " + recepcion.cantidadRecibida + " " + recepcion.detalle.getUnidadMedida().getAbreviatura()
                 );
 
                 // Actualizar cantidad recibida en el detalle
@@ -455,6 +465,28 @@ public class CompraService {
         Compra compraActualizada = compraRepository.save(compra);
         return mapToResponse(compraActualizada);
     }
+
+//    // MÉTODOS DE COMPATIBILIDAD (sin usuarioId) - LLAMAN A LAS NUEVAS VERSIONES
+//    @Transactional
+//    public CompraResponseDto recibirCompra(Long compraId) {
+//        // Usar un usuario por defecto o null (depende de tu lógica)
+//        Long usuarioPorDefecto = null; // Cambia por el ID de un usuario por defecto o usa null
+//        return recibirCompra(compraId, usuarioPorDefecto);
+//    }
+//
+//    @Transactional
+//    public CompraResponseDto recibirCompraParcial(Long compraId, List<DetalleRecepcionRequestDto> detallesRecepcion) {
+//        // Usar un usuario por defecto o null
+//        Long usuarioPorDefecto = null;
+//        return recibirCompraParcial(compraId, detallesRecepcion, usuarioPorDefecto);
+//    }
+//
+//    @Transactional
+//    public CompraResponseDto cancelarCompra(Long compraId) {
+//        // Usar un usuario por defecto o null
+//        Long usuarioPorDefecto = null;
+//        return cancelarCompra(compraId, usuarioPorDefecto);
+//    }
 
     // Clase auxiliar para validación
     private static class RecepcionValida {
@@ -512,7 +544,7 @@ public class CompraService {
     }
 
     @Transactional
-    public CompraResponseDto cancelarCompra(Long compraId) {
+    public CompraResponseDto cancelarCompra(Long compraId, Long usuarioId) { // NUEVO PARÁMETRO: usuarioId
         Compra compra = compraRepository.findById(compraId)
                 .orElseThrow(() -> new IllegalArgumentException("Compra no encontrada con ID: " + compraId));
 
@@ -524,7 +556,7 @@ public class CompraService {
             throw new IllegalStateException("La compra ya está cancelada");
         }
 
-        //  Solo revertir inventario si estaba parcialmente recibida
+        // Solo revertir inventario si estaba parcialmente recibida
         if (compra.getEstado() == EstadoCompra.PARCIALMENTE_RECIBIDA) {
             for (DetalleCompra detalle : compra.getDetalles()) {
                 if (detalle.getCantidadRecibida().compareTo(BigDecimal.ZERO) > 0) {
@@ -534,11 +566,14 @@ public class CompraService {
                             detalle.getUnidadMedida()
                     );
 
-                    // Revertir el inventario (restar)
-                    inventarioService.actualizarStockPorCompra(
+                    // NUEVA LLAMADA: Usar actualizarStockPorVenta para revertir el inventario
+                    inventarioService.actualizarStockPorVenta(
                             detalle.getProducto().getId(),
                             compra.getSucursal().getId(),
-                            cantidadEnUnidadesBase.negate()
+                            cantidadEnUnidadesBase, // Cantidad POSITIVA (se restará del inventario)
+                            usuarioId,              // NUEVO: ID del usuario
+                            compraId,               // NUEVO: ID de la compra
+                            "Cancelación de compra #" + compra.getNumeroFactura() // NUEVO: Observaciones
                     );
                 }
             }

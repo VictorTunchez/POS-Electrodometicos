@@ -2,13 +2,19 @@ package pos.api.domain.inventario;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import pos.api.domain.inventario.movimientos.IMovimientoInventarioRepository;
+import pos.api.domain.inventario.movimientos.MovimientoInventario;
+import pos.api.domain.inventario.movimientos.TipoMovimiento;
 import pos.api.domain.producto.IProductoRepository;
 import pos.api.domain.producto.Producto;
 import pos.api.domain.sucursal.ISucursalRepository;
 import pos.api.domain.sucursal.Sucursal;
+import pos.api.domain.usuario.IUsuarioRepository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -19,6 +25,8 @@ public class InventarioService {
     private final IInventarioRepository inventarioRepository;
     private final IProductoRepository productoRepository;
     private final ISucursalRepository sucursalRepository;
+    private final IUsuarioRepository usuarioRepository;
+    private final IMovimientoInventarioRepository movimientoInventarioRepository;
 
     @Transactional
     public InventarioResponseDto crearRegistroInventario(InventarioRequestDto dto) {
@@ -123,28 +131,105 @@ public class InventarioService {
                 .toList();
     }
 
-
-     // METODOS INTERNOS PARA COMPRAS/VENTAS (NO EXPUESTOS EN CONTROLLER)
+    // METODOS INTERNOS PARA COMPRAS/VENTAS (NO EXPUESTOS EN CONTROLLER)
+    // VERSIÓN ORIGINAL (mantenemos compatibilidad)
     @Transactional
     public void actualizarStockPorCompra(Long productoId, Long sucursalId, BigDecimal cantidad) {
-        Inventario inventario = obtenerOcrearInventario(productoId, sucursalId);
-        inventario.agregarStock(cantidad);
-        inventarioRepository.save(inventario);
+        actualizarStockPorCompra(productoId, sucursalId, cantidad, null, null, "Compra sin usuario especificado");
     }
 
     @Transactional
     public void actualizarStockPorVenta(Long productoId, Long sucursalId, BigDecimal cantidad) {
-        Inventario inventario = inventarioRepository
-                .findByProductoIdAndSucursalId(productoId, sucursalId)
-                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
+        actualizarStockPorVenta(productoId, sucursalId, cantidad, null, null, "Venta sin usuario especificado");
+    }
 
-        // Validar stock suficiente
-        if (inventario.getStockActual().compareTo(cantidad) < 0) {
-            throw new RuntimeException("Stock insuficiente. Stock actual: " + inventario.getStockActual() + ", solicitado: " + cantidad);
+    // NUEVAS VERSIONES CON REGISTRO DE MOVIMIENTOS
+    @Transactional
+    public void actualizarStockPorCompra(Long productoId, Long sucursalId, BigDecimal cantidad,
+                                         Long usuarioId, Long compraId, String observaciones) {
+        Inventario inventario = obtenerOcrearInventario(productoId, sucursalId);
+        BigDecimal stockAnterior = inventario.getStockActual();
+
+        inventario.agregarStock(cantidad);
+        inventarioRepository.save(inventario);
+
+        // Registrar movimiento
+        registrarMovimientoInventario(
+                inventario,
+                TipoMovimiento.ENTRADA,
+                cantidad,
+                stockAnterior,
+                inventario.getStockActual(),
+                usuarioId,
+                "COMPRA",
+                compraId,
+                observaciones != null ? observaciones : "Entrada por compra"
+        );
+    }
+
+    @Transactional
+    public void actualizarStockPorVenta(Long productoId, Long sucursalId, BigDecimal cantidad,
+                                        Long usuarioId, Long ventaId, String observaciones) {
+
+        // ELIMINAMOS la verificación previa - dejamos que la constraint única maneje los duplicados
+        Inventario inventario = obtenerOcrearInventario(productoId, sucursalId);
+        BigDecimal stockAnterior = inventario.getStockActual();
+
+        // Validar stock suficiente solo si es una venta (cantidad positiva)
+        if (cantidad.compareTo(BigDecimal.ZERO) > 0) {
+            if (inventario.getStockActual().compareTo(cantidad) < 0) {
+                throw new RuntimeException("Stock insuficiente. Stock actual: " + inventario.getStockActual() + ", solicitado: " + cantidad);
+            }
+            inventario.reducirStock(cantidad);
+        } else {
+            // Si es cantidad negativa (cancelación), agregar stock
+            inventario.agregarStock(cantidad.abs());
         }
 
-        inventario.reducirStock(cantidad);
         inventarioRepository.save(inventario);
+
+        // Registrar movimiento - LA CONSTRAINT ÚNICA EVITARÁ DUPLICADOS
+        registrarMovimientoInventario(
+                inventario,
+                cantidad.compareTo(BigDecimal.ZERO) > 0 ? TipoMovimiento.SALIDA : TipoMovimiento.ENTRADA,
+                cantidad.abs(),
+                stockAnterior,
+                inventario.getStockActual(),
+                usuarioId,
+                "VENTA",
+                ventaId,
+                observaciones
+        );
+    }
+
+
+    // Metodo para traslados
+    @Transactional
+    public void actualizarStockPorTraslado(Long productoId, Long sucursalId, BigDecimal cantidad,
+                                           Long usuarioId, Long trasladoId, String observaciones) {
+        Inventario inventario = obtenerOcrearInventario(productoId, sucursalId);
+        BigDecimal stockAnterior = inventario.getStockActual();
+
+        if (cantidad.compareTo(BigDecimal.ZERO) > 0) {
+            inventario.agregarStock(cantidad);
+        } else {
+            inventario.reducirStock(cantidad.abs());
+        }
+
+        inventarioRepository.save(inventario);
+
+        // Registrar movimiento
+        registrarMovimientoInventario(
+                inventario,
+                cantidad.compareTo(BigDecimal.ZERO) > 0 ? TipoMovimiento.TRASLADO_ENTRADA : TipoMovimiento.TRASLADO_SALIDA,
+                cantidad.abs(),
+                stockAnterior,
+                inventario.getStockActual(),
+                usuarioId,
+                "TRASLADO",
+                trasladoId,
+                observaciones
+        );
     }
 
     public BigDecimal obtenerStockActual(Long productoId, Long sucursalId) {
@@ -168,6 +253,50 @@ public class InventarioService {
                     nuevo.setStockMinimo(new BigDecimal(5));
                     return inventarioRepository.save(nuevo);
                 });
+    }
+
+    private void registrarMovimientoInventario(Inventario inventario, TipoMovimiento tipoMovimiento,
+                                               BigDecimal cantidad, BigDecimal stockAnterior,
+                                               BigDecimal stockPosterior, Long usuarioId,
+                                               String referenciaTipo, Long referenciaId,
+                                               String observaciones) {
+        try {
+            MovimientoInventario movimiento = new MovimientoInventario();
+            movimiento.setProducto(inventario.getProducto());
+            movimiento.setSucursal(inventario.getSucursal());
+            movimiento.setTipoMovimiento(tipoMovimiento);
+            movimiento.setCantidad(cantidad);
+            movimiento.setStockAnterior(stockAnterior);
+            movimiento.setStockPosterior(stockPosterior);
+            movimiento.setFechaMovimiento(Instant.now());
+
+            if (usuarioId != null) {
+                movimiento.setUsuario(usuarioRepository.findById(usuarioId)
+                        .orElse(usuarioRepository.getReferenceById(usuarioId)));
+            } else {
+                movimiento.setUsuario(null);
+            }
+
+            movimiento.setReferenciaTipo(referenciaTipo);
+            movimiento.setReferenciaId(referenciaId);
+            movimiento.setObservaciones(observaciones);
+
+            movimientoInventarioRepository.save(movimiento);
+
+            System.out.println("Movimiento registrado: " + tipoMovimiento +
+                    " - Producto: " + inventario.getProducto().getNombreProducto() +
+                    " - Cantidad: " + cantidad);
+
+        } catch (DataIntegrityViolationException e) {
+            // ESTA ES LA CLAVE: Capturar la violación de constraint única
+            System.out.println("🟡 Movimiento DUPLICADO detectado y evitado: " +
+                    "Producto: " + inventario.getProducto().getId() +
+                    ", Sucursal: " + inventario.getSucursal().getId() +
+                    ", Referencia: " + referenciaTipo + "-" + referenciaId);
+            // No hacemos nada - simplemente ignoramos el movimiento duplicado
+        } catch (Exception e) {
+            System.err.println("Error al registrar movimiento de inventario: " + e.getMessage());
+        }
     }
 
     private InventarioResponseDto mapToResponse(Inventario inventario) {
