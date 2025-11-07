@@ -32,7 +32,7 @@ Su propósito principal es automatizar las operaciones comerciales y facilitar l
 | [Arquitectura](arquitectura.md) | Estructura del sistema, capas y comunicación entre módulos. |
 | [Módulos del Sistema](modulos-del-sistema.md) | Descripción de los módulos principales (ventas, inventario, compras, etc.). |
 | [Base de Datos](base-de-datos/README.md) | Modelo entidad-relación, diseño lógico y estructura general. |
-| [Script PostgreSQL](base-de-datos/script.sql) | Script SQL usado para crear las tablas y relaciones. |
+| [Script PostgreSQL](base-de-datos/script-postgres-sql.md) | Script SQL usado para crear las tablas y relaciones. |
 | [Backend](backend.md) | Descripción del API REST, endpoints, controladores y servicios. |
 | [Frontend](frontend.md) | Estructura y componentes clave de la aplicación React. |
 | [Seguridad](seguridad.md) | Autenticación, autorización y configuración de JWT/Auth0. |
