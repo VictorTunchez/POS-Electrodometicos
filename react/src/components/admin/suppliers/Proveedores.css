@@ -1,0 +1,96 @@
+.module-container {
+  padding: 20px;
+}
+
+.module-header {
+  margin-bottom: 20px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.search-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.search-box {
+  max-width: 600px;
+}
+
+.filters-row .form-label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.inventario-list {
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.badge-sm {
+  font-size: 0.7em;
+  padding: 0.2em 0.4em;
+}
+
+/* Estilos para filas inactivas */
+.table-secondary td {
+  opacity: 0.6;
+}
+
+/* Estilos para el modal */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.detalle-producto p {
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .button-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .filters-row .col-md-2 {
+    margin-bottom: 15px;
+  }
+  
+  .table-responsive {
+    font-size: 0.9em;
+  }
+}

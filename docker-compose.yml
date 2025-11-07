@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: pos_apiv2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pos-network
+
+  backend:
+    build: ./api
+    container_name: backend
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pos_apiv2
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      STRIPE_SECRET_KEY: sk_test_51SFM2pC57XwKRgTNz1RaSJntbOvaMEDZQwVURxvdapi5e3TQerv6dzbZq2fV83bruVjoE6nQq9abIMu8193peSnw00KWAGd5FZ
+      FRONTEND_URL_INTERNAL: http://frontend          # Para comunicación interna (Stripe, etc.)
+      FRONTEND_URL_PUBLIC: http://localhost:80      # Para correos, links, pruebas locales
+    ports:
+      - "8080:8080"
+    networks:
+      - pos-network
+
+  frontend:
+    build: ./react
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - pos-network
+
+networks:
+  pos-network:
+
+volumes:
+  postgres_data:

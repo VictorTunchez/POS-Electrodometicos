@@ -1,0 +1,212 @@
+/* Usuarios.css */
+
+/* Contenedor general */
+.module-container {
+  padding: 1.5rem;
+  color: var(--color-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header del módulo */
+.module-header {
+  margin-bottom: 1.5rem;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.header-top h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+/* Botones principales */
+.new-button,
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+/* Sección de búsqueda */
+.search-section {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-box input {
+  min-width: 250px;
+}
+
+/* Toggle vista usuarios */
+.view-toggle .btn {
+  min-width: 140px;
+}
+
+/* Formulario de creación/edición */
+#form-section {
+  margin-bottom: 1.5rem;
+}
+
+#form-section .card-header {
+  background-color: var(--color-light);
+  border-bottom: 1px solid #dee2e6;
+}
+
+#form-section .form-label {
+  font-weight: 500;
+}
+
+#form-section .form-control,
+#form-section .form-select {
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-speed);
+}
+
+#form-section .form-control:focus,
+#form-section .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25);
+}
+
+/* Botones del formulario */
+#form-section .btn {
+  min-width: 120px;
+}
+
+/* Tabla de usuarios */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table thead {
+  background-color: var(--color-light);
+}
+
+.table tbody tr:hover {
+  background-color: #f1f3f5;
+  transition: background-color var(--transition-speed);
+}
+
+.table tbody tr.table-secondary {
+  background-color: #e9ecef;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.table .btn i {
+  font-size: 1rem;
+}
+
+/* Badges */
+.badge {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Modal de detalles */
+.modal-content {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: var(--color-light);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.detail-item p {
+  margin: 0;
+}
+
+/* Información de eliminación */
+.rol-detail-section {
+  border-top: 1px solid #dee2e6;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.rol-detail-section h6 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Alertas */
+.mensaje-alerta {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  min-width: 250px;
+}
+
+/* Ajustes de íconos */
+.bi {
+  vertical-align: middle;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-toggle .btn {
+    flex: 1;
+  }
+}
+
+/* En tu archivo de estilos principal (App.css o index.css) */
+.bg-purple {
+  background-color: #6f42c1 !important;
+  color: white !important;
+}
+
+/* Mejorar la apariencia de todos los badges */
+.badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 0.5em 0.75em;
+}
+
+/* Asegurar que el texto sea visible en badges claros */
+.bg-warning, .bg-info {
+  color: #000 !important;
+}
+
