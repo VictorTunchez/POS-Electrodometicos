@@ -138,6 +138,11 @@ public class DataInitializer implements CommandLineRunner {
                 {"VENTAS_VER", "Ver ventas", "Ventas"},
                 {"VENTAS_EDITAR", "Editar ventas", "Ventas"},
                 {"VENTAS_ELIMINAR", "Eliminar ventas", "Ventas"},
+
+                {"TARJETAS_CREAR", "Crear tarjetas", "Tarjetas"},
+                {"TARJETAS_VER", "Ver tarjetas", "Tarjetas"},
+                {"TARJETAS_EDITAR", "Editar tarjetas", "Tarjetas"},
+                {"TARJETAS_ELIMINAR", "Eliminar tarjetas", "Tarjetas"},
         };
 
         Set<Permiso> permisosCreados = new HashSet<>();

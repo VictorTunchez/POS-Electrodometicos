@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import servicioAutenticacion from "../../services/servicioAutenticacion";
 import { validarEmail } from "../../utils/validaciones";
+import "./ModalRecuperarContrasena.css";
 
 function ModalRecuperarContrasena() {
   const [email, setEmail] = useState("");
@@ -76,101 +77,138 @@ function ModalRecuperarContrasena() {
       data-bs-backdrop="static"
     >
       <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Recuperar Contraseña</h5>
+        <div className="modal-content modal-recuperar">
+          <div className="modal-header-custom">
+            <div className="modal-icon">
+              <i className="bi bi-shield-lock"></i>
+            </div>
+            <h5 className="modal-title-custom">Recuperar Contraseña</h5>
             <button
               type="button"
-              className="btn-close"
+              className="btn-close-custom"
               data-bs-dismiss="modal"
               aria-label="Cerrar"
               onClick={resetearFormulario}
-            ></button>
+            >
+              <i className="bi bi-x"></i>
+            </button>
           </div>
-          <div className="modal-body">
-            {/* Mostrar mensajes de error dentro del modal (solo para problemas técnicos) */}
+
+          <div className="modal-body-custom">
             {error && (
-              <div className="alerta-error mb-3">
-                <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                {error}
+              <div className="alert-custom alert-error">
+                <div className="alert-icon">
+                  <i className="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div className="alert-content">
+                  <p>{error}</p>
+                </div>
               </div>
             )}
 
             {!enviado ? (
-              <>
-                <p className="texto-secundario mb-4">Ingresa tu dirección de correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.</p>
-                <form onSubmit={manejarEnvio}>
-                  <div className="form-group">
-                    <div className={`input-container ${errorEmail ? 'input-error' : campoModificado && email && !errorEmail ? 'input-success' : ''}`}>
-                      <div className="input-icon-container">
-                        <i className="bi bi-envelope input-icon"></i>
+              <div className="modal-form-container">
+                <p className="modal-description">
+                  Ingresa tu dirección de correo electrónico y te enviaremos
+                  instrucciones para restablecer tu contraseña.
+                </p>
+
+                <form onSubmit={manejarEnvio} className="recuperar-form">
+                  <div className="form-group-modal">
+                    <label htmlFor="email-recuperar" className="form-label-modal">
+                      Correo electrónico
+                    </label>
+                    <div className={`input-wrapper-modal ${errorEmail ? 'has-error' : campoModificado && email && !errorEmail ? 'has-success' : ''}`}>
+                      <div className="input-icon-modal">
+                        <i className="bi bi-envelope"></i>
                       </div>
                       <input
                         type="email"
-                        className="form-control"
-                        placeholder="Correo electrónico"
+                        id="email-recuperar"
+                        className="form-input-modal"
+                        placeholder="tucorreo@gmail.com"
                         value={email}
                         onChange={manejarCambioEmail}
                         onBlur={() => setCampoModificado(true)}
                         disabled={cargando}
                       />
                       {campoModificado && !errorEmail && email && (
-                        <div className="input-status-icon">
-                          <i className="bi bi-check-circle"></i>
+                        <div className="input-feedback-modal success">
+                          <i className="bi bi-check-circle-fill"></i>
                         </div>
                       )}
                       {errorEmail && (
-                        <div className="input-status-icon">
-                          <i className="bi bi-exclamation-circle"></i>
+                        <div className="input-feedback-modal error">
+                          <i className="bi bi-exclamation-circle-fill"></i>
                         </div>
                       )}
                     </div>
-                    {errorEmail && <div className="error-message">{errorEmail}</div>}
+                    {errorEmail && (
+                      <div className="error-text-modal">
+                        <i className="bi bi-info-circle"></i>
+                        {errorEmail}
+                      </div>
+                    )}
                   </div>
+
                   <button
                     type="submit"
-                    className="btn-login w-100"
+                    className="btn-submit-modal"
                     disabled={cargando}
                   >
                     {cargando ? (
                       <>
-                        <span className="spinner"></span>
-                        Enviando...
+                        <span className="btn-spinner-modal"></span>
+                        <span>Enviando...</span>
                       </>
                     ) : (
-                      "Enviar"
+                      <>
+                        <span>Enviar</span>
+                        <i className="bi bi-send"></i>
+                      </>
                     )}
                   </button>
                 </form>
-              </>
+              </div>
             ) : (
-              <div className="alerta-info">
-                <div className="d-flex">
-                  <i className="bi bi-info-circle-fill me-3"></i>
-                  <div>
-                    <h6 className="alert-heading">¡Solicitud recibida!</h6>
-                    <p className="mb-2">{mensaje}</p>
-                    <p className="mb-0">
-                      <strong>Correo ingresado:</strong> {emailIngresado}
-                    </p>
+              <div className="success-container">
+                <div className="success-icon-wrapper">
+                  <div className="success-icon">
+                    <i className="bi bi-check-circle-fill"></i>
                   </div>
                 </div>
-                <div className="mt-3 d-flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary flex-fill"
-                    onClick={resetearFormulario}
-                  >
-                    Ingresar otro correo
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary flex-fill"
-                    data-bs-dismiss="modal"
-                    onClick={resetearFormulario}
-                  >
-                    Cerrar
-                  </button>
+
+                <div className="success-content">
+                  <h6 className="success-title">¡Solicitud recibida!</h6>
+                  <p className="success-message">{mensaje}</p>
+
+                  <div className="email-sent-info">
+                    <i className="bi bi-envelope-check"></i>
+                    <div>
+                      <span className="email-label">Correo ingresado:</span>
+                      <span className="email-value">{emailIngresado}</span>
+                    </div>
+                  </div>
+
+                  <div className="success-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary-modal"
+                      onClick={resetearFormulario}
+                    >
+                      <i className="bi bi-arrow-counterclockwise"></i>
+                      Ingresar otro correo
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-primary-modal"
+                      data-bs-dismiss="modal"
+                      onClick={resetearFormulario}
+                    >
+                      Cerrar
+                      <i className="bi bi-check-lg"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import servicioCategorias from "../../../services/servicioCategorias";
 import { handleApiError } from "../../../utils/errorHandler";
-import "./Categorias.css";
 import MensajeAlerta from "../../MensajeAlerta";
 
 function Categorias() {

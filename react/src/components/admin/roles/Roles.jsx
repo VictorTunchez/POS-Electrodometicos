@@ -7,7 +7,6 @@ import RolesForm from "./RolesForm";
 import RolesTable from "./RolesTable";
 import FiltersSection from "./FiltersSection";
 import RolesDetailsModal from "./RolesDetailsModal";
-import "./Roles.css";
 
 function Roles() {
   const navigate = useNavigate();

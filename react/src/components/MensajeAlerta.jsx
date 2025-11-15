@@ -1,50 +1,66 @@
-// src/components/MensajeAlerta.jsx
 import React, { useEffect, useState } from "react";
 import "./MensajeAlerta.css";
 
-function MensajeAlerta({ tipo, mensaje, onClose, duracion = 3000, posicion = "top-right" }) {
+function MensajeAlerta({ tipo, mensaje, onClose, duracion = 4000, posicion = "top-right" }) {
   const [visible, setVisible] = useState(false);
+  const [progreso, setProgreso] = useState(100);
 
   // Configuración para cada tipo de alerta
   const alertConfig = {
     exito: {
       iconClass: "bi bi-check-circle-fill",
-      alertClass: "alert-success",
+      alertClass: "alerta-exito",
       ariaRole: "status"
     },
     error: {
-      iconClass: "bi bi-exclamation-circle-fill",
-      alertClass: "alert-danger",
+      iconClass: "bi bi-x-circle-fill",
+      alertClass: "alerta-error",
       ariaRole: "alert"
     },
     advertencia: {
       iconClass: "bi bi-exclamation-triangle-fill",
-      alertClass: "alert-warning",
+      alertClass: "alerta-advertencia",
       ariaRole: "alert"
     },
     informacion: {
       iconClass: "bi bi-info-circle-fill",
-      alertClass: "alert-info",
+      alertClass: "alerta-info",
       ariaRole: "status"
     }
   };
 
   // Posicionamiento de la alerta
-  const posicionamiento = {
-    "top-right": "top-0 end-0",
-    "top-left": "top-0 start-0",
-    "bottom-right": "bottom-0 end-0",
-    "bottom-left": "bottom-0 start-0",
-    "top-center": "top-0 start-50 translate-middle-x",
-    "bottom-center": "bottom-0 start-50 translate-middle-x"
+  const posicionClasses = {
+    "top-right": "pos-top-right",
+    "top-left": "pos-top-left",
+    "bottom-right": "pos-bottom-right",
+    "bottom-left": "pos-bottom-left",
+    "top-center": "pos-top-center",
+    "bottom-center": "pos-bottom-center"
   };
 
   const config = alertConfig[tipo] || alertConfig.informacion;
 
   useEffect(() => {
-    // Pequeño retraso para permitir la animación de entrada
+    // Mostrar la alerta con animación
     const showTimer = setTimeout(() => setVisible(true), 10);
 
+    // Barra de progreso
+    const intervalo = 50; // actualizar cada 50ms
+    const pasos = duracion / intervalo;
+    let pasoActual = 0;
+
+    const progressInterval = setInterval(() => {
+      pasoActual++;
+      const nuevoProgreso = 100 - (pasoActual / pasos) * 100;
+      setProgreso(nuevoProgreso);
+
+      if (pasoActual >= pasos) {
+        clearInterval(progressInterval);
+      }
+    }, intervalo);
+
+    // Cerrar automáticamente
     const closeTimer = setTimeout(() => {
       handleClose();
     }, duracion);
@@ -52,6 +68,7 @@ function MensajeAlerta({ tipo, mensaje, onClose, duracion = 3000, posicion = "to
     return () => {
       clearTimeout(showTimer);
       clearTimeout(closeTimer);
+      clearInterval(progressInterval);
     };
   }, [duracion]);
 
@@ -59,36 +76,37 @@ function MensajeAlerta({ tipo, mensaje, onClose, duracion = 3000, posicion = "to
     setVisible(false);
     setTimeout(() => {
       if (onClose) onClose();
-    }, 300); // tiempo de la animación fade-out
+    }, 300);
   };
 
   return (
-    <div
-      className={`position-fixed p-3 ${posicionamiento[posicion]}`}
-      style={{ zIndex: 1055, transition: "opacity 0.3s ease" }}
-    >
+    <div className={`alerta-container ${posicionClasses[posicion]}`}>
       <div
-        className={`alert ${config.alertClass} alert-dismissible fade ${visible ? 'show' : 'hide'} d-flex align-items-center shadow`}
+        className={`alerta-card ${config.alertClass} ${visible ? 'alerta-show' : 'alerta-hide'}`}
         role={config.ariaRole}
         aria-live="assertive"
         aria-atomic="true"
-        style={{
-          minWidth: "300px",
-          maxWidth: "400px",
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(-10px)",
-          transition: "opacity 0.3s ease, transform 0.3s ease"
-        }}
       >
-        <i className={`${config.iconClass} me-2`} style={{fontSize: "1.2rem"}}></i>
-        <div className="flex-grow-1">{mensaje}</div>
-        <button
-          type="button"
-          className="btn-close"
-          aria-label="Close"
-          onClick={handleClose}
-          style={{flexShrink: 0}}
-        ></button>
+        <div className="alerta-content">
+          <div className="alerta-icon-wrapper">
+            <i className={config.iconClass}></i>
+          </div>
+          <div className="alerta-mensaje">{mensaje}</div>
+          <button
+            type="button"
+            className="alerta-close-btn"
+            aria-label="Cerrar"
+            onClick={handleClose}
+          >
+            <i className="bi bi-x"></i>
+          </button>
+        </div>
+        <div className="alerta-progress-bar">
+          <div
+            className="alerta-progress-fill"
+            style={{ width: `${progreso}%` }}
+          ></div>
+        </div>
       </div>
     </div>
   );

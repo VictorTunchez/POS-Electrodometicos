@@ -3,6 +3,7 @@ import servicioAutenticacion from "../../services/servicioAutenticacion";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import "./PanelPrincipal.css";
 import Dashboard from "../admin/Dashboard";
+ import logo from "./icono.png"; // ruta relativa al componente
 
 function PanelPrincipal() {
   const [saludo, setSaludo] = useState("");
@@ -12,7 +13,7 @@ function PanelPrincipal() {
   const [sidebarColapsado, setSidebarColapsado] = useState(false);
   const [sidebarVisibleMobile, setSidebarVisibleMobile] = useState(false);
   const [gruposExpandidos, setGruposExpandidos] = useState({});
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
@@ -59,6 +60,13 @@ function PanelPrincipal() {
           ruta: "/panel/roles",
           icono: "bi-shield-lock",
           descripcion: "Controla accesos y privilegios"
+        },
+        {
+          id: 10,
+          nombre: "Tarjetas de Regalo",
+          ruta: "/panel/tarjetas-regalo",
+          icono: "bi-gift-fill",
+          descripcion: "Gestión de tarjetas de regalo"
         }
       ]
     },
@@ -142,7 +150,7 @@ function PanelPrincipal() {
     };
 
     fetchDatosUsuario();
-    
+
     // Cargar estado de grupos desde localStorage o inicializar
     const estadoGuardado = localStorage.getItem('sidebarGruposExpandidos');
     if (estadoGuardado) {
@@ -216,13 +224,13 @@ function PanelPrincipal() {
   // Obtener el módulo actual basado en la ruta
   const obtenerModuloActual = () => {
     const rutaActual = location.pathname;
-    
+
     // Buscar en todos los grupos
     for (const grupo of gruposModulos) {
       const modulo = grupo.modulos.find(m => m.ruta === rutaActual);
       if (modulo) return modulo;
     }
-    
+
     // Si no se encuentra, devolver el dashboard
     return gruposModulos[0].modulos[0];
   };
@@ -283,21 +291,35 @@ function PanelPrincipal() {
   return (
     <div className={`panel-container ${sidebarColapsado ? 'sidebar-colapsado' : ''}`}>
       {/* Sidebar de navegación */}
-      <aside 
+      <aside
         className={`sidebar ${sidebarVisibleMobile ? 'mobile-visible' : ''}`}
         aria-label="Navegación principal"
         ref={sidebarRef}
       >
         <div className="sidebar-header">
-          <div className="brand-section">
-            {(!sidebarColapsado || sidebarVisibleMobile) && (
-              <div className="brand-text">
-                <i className="bi bi-house-door"></i>
-                <h2 className="panel-title">El Hogar</h2>
-                {/* <p className="panel-subtitle">Electrodomesticos y más</p> */}
-              </div>
-            )}
-          </div>
+            <div
+              className="brand-section"
+              style={{
+                padding: "0px",                // sin padding
+                background: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start"   // alinea a la izquierda
+              }}
+            >
+              {(!sidebarColapsado || sidebarVisibleMobile) && (
+                <img
+                  src={logo}
+                  alt="Logo"
+                  style={{
+                    width: "145px",      // ajusta tamaño
+                    height: "auto",
+                    objectFit: "contain",
+                    marginLeft: "6px"    // margen SUAVE opcional (ajústalo o borralo)
+                  }}
+                />
+              )}
+            </div>
           {/* Este botón solo se muestra en desktop (no en móviles) */}
           {!sidebarVisibleMobile && (
             <button
@@ -309,14 +331,13 @@ function PanelPrincipal() {
             </button>
           )}
         </div>
-
         <nav className="sidebar-nav" aria-label="Módulos del sistema">
           <ul className="grupos-list">
             {gruposModulos.map(grupo => (
               <li key={grupo.id} className="grupo-item">
                 {/* Encabezado del grupo - solo visible cuando el sidebar no está colapsado */}
                 {(!sidebarColapsado || sidebarVisibleMobile) && grupo.modulos.length > 1 ? (
-                  <div 
+                  <div
                     className="grupo-header"
                     onClick={(e) => toggleGrupo(grupo.id, e)}
                     onKeyDown={(e) => manejarTecladoGrupo(e, grupo.id)}
@@ -330,7 +351,7 @@ function PanelPrincipal() {
                       <i className={`bi ${grupo.icono}`}></i>
                     </div>
                     <span className="grupo-name">{grupo.nombre}</span>
-                    <i 
+                    <i
                       className={`bi grupo-chevron ${gruposExpandidos[grupo.id] ? 'bi-chevron-down' : 'bi-chevron-right'}`}
                     ></i>
                   </div>
@@ -343,9 +364,9 @@ function PanelPrincipal() {
                     <span className="grupo-name">{grupo.nombre}</span>
                   </div>
                 )}
-                
+
                 {/* Lista de módulos del grupo */}
-                <ul 
+                <ul
                   id={`grupo-${grupo.id}-modulos`}
                   className={`modulos-list ${!gruposExpandidos[grupo.id] && grupo.modulos.length > 1 ? 'colapsado' : ''} ${sidebarColapsado && !sidebarVisibleMobile ? 'sidebar-colapsado' : ''}`}
                 >
@@ -420,14 +441,14 @@ function PanelPrincipal() {
                   <span className="user-name">{usuario?.nombre || 'Usuario'}</span>
                   <span className="user-role">{usuario?.rol || 'Usuario'}</span>
                 </div>
-                <i 
+                <i
                   className={`bi bi-chevron-down dropdown-icon ${mostrarMenu ? 'rotate' : ''}`}
                   aria-hidden="true"
                 ></i>
               </div>
 
               {mostrarMenu && (
-                <div 
+                <div
                   className="user-menu show"
                   role="menu"
                   aria-label="Opciones de usuario"
@@ -471,7 +492,7 @@ function PanelPrincipal() {
         aria-expanded={sidebarVisibleMobile}
         aria-controls="sidebar-navigation"
       >
-        <i 
+        <i
           className={`bi ${sidebarVisibleMobile ? 'bi-x-lg' : 'bi-list'}`}
           aria-hidden="true"
         ></i>

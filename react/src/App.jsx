@@ -16,6 +16,7 @@ import Clientes from "./components/admin/clientes/Clientes";
 import Ventas from "./components/admin/ventas/Ventas";
 // import VentaExito from "./components/admin/ventas/VentaExito";
 import Traslados from "./components/admin/products/traslados/Traslados";
+import TarjetaRegalo from "./components/admin/tarjetaRegalo/TarjetaRegalo"; 
 
 function App() {
   const [count, setCount] = useState(0)
@@ -32,6 +33,7 @@ function App() {
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="sucursales" element={<Sucursales />} />
           <Route path="roles" element={<Roles />} />
+          <Route path="tarjetas-regalo" element={<TarjetaRegalo />} />
           <Route path="proveedores" element={<Proveedores />} />
           <Route path="compras" element={<Compras />} />
           <Route path="clientes" element={<Clientes />} />
